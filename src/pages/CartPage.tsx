@@ -1,4 +1,4 @@
-import { useCart } from "../context/useCart";
+import { useCart } from "../context/cart/useCart";
 import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
 

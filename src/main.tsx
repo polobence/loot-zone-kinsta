@@ -7,7 +7,7 @@ import { ThemeProvider } from "@emotion/react";
 import App from "./App";
 import { theme } from "./theme/theme.ts";
 import { GlobalStyles } from "./theme/GlobalStyles";
-import { CartProvider } from "./context/CartProvider.tsx";
+import { CartProvider } from "./context/cart/CartProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
