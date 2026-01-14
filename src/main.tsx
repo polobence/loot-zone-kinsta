@@ -8,17 +8,20 @@ import App from "./App";
 import { theme } from "./theme/theme.ts";
 import { GlobalStyles } from "./theme/GlobalStyles";
 import { CartProvider } from "./context/cart/CartProvider.tsx";
+import { AuthProvider } from "./context/auth/AuthProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <StratusProvider language="en">
       <ThemeProvider theme={theme}>
         <GlobalStyles />
-        <CartProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </CartProvider>
+        </AuthProvider>
       </ThemeProvider>
     </StratusProvider>
   </StrictMode>
