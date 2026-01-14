@@ -1,4 +1,3 @@
-import "./App.css";
 import { StratusProvider } from "@kinsta/stratus";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import { AllProductsPage } from "./pages/AllProductsPage";
