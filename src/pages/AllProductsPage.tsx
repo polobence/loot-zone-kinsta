@@ -53,6 +53,13 @@ export function AllProductsPage() {
       />
 
       <ProductList products={currentProducts} />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPrev={() => setCurrentPage((p) => p - 1)}
+        onNext={() => setCurrentPage((p) => p + 1)}
+      />
     </>
   );
 }

@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 const FilterBar = styled.div`
   display: flex;
+  justify-content: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
 `;
