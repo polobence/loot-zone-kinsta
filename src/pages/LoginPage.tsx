@@ -37,6 +37,7 @@ export function LoginPage() {
     e.preventDefault();
     const success = login(username, password);
     if (success) {
+      setError("");
       navigate("/");
     } else {
       setError("Invalid credentials");
@@ -44,7 +45,7 @@ export function LoginPage() {
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form>
       <h2>Login</h2>
       <Input
         placeholder="Username"
@@ -58,7 +59,7 @@ export function LoginPage() {
         onChange={(e) => setPassword(e.target.value)}
       />
       {error && <Error>{error}</Error>}
-      <Button type="submit">Login</Button>
+      <Button onClick={handleSubmit}>Login</Button>
     </Form>
   );
 }
