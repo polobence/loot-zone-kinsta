@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { NavLink } from "react-router-dom";
 import { Button } from "@kinsta/stratus";
+import { useAuth } from "../../context/auth/useAuth";
 
 const HeaderWrapper = styled.header`
   background-color: white;
@@ -27,11 +28,12 @@ const NavButton = styled(Button)`
 `;
 
 export function Header() {
+  const { user, logout } = useAuth();
+
   return (
     <HeaderWrapper>
       <HeaderInner>
         <strong>Loot Zone</strong>
-
         <Nav>
           <NavLink to="/">
             <NavButton>All Products</NavButton>
@@ -39,6 +41,13 @@ export function Header() {
           <NavLink to="/cart">
             <NavButton>Cart</NavButton>
           </NavLink>
+          {user ? (
+            <NavButton onClick={logout}>Logout</NavButton>
+          ) : (
+            <NavLink to="/login">
+              <NavButton isDisabled={false}>Login</NavButton>
+            </NavLink>
+          )}
         </Nav>
       </HeaderInner>
     </HeaderWrapper>
