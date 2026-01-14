@@ -8,10 +8,18 @@ const List = styled.div`
   gap: 1rem;
 `;
 
+const EmptyMessage = styled.h1`
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 4rem;
+  color: #6c5ce7;
+`;
+
 export function CartPage() {
   const { cartItems, removeFromCart, clearCart, totalItems, totalPrice } = useCart();
 
-  if (cartItems.length === 0) return <p>Your cart is empty</p>;
+  if (cartItems.length === 0) return <EmptyMessage>Your cart is empty</EmptyMessage>;
 
   return (
     <div>
