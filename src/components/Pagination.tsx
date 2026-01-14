@@ -2,9 +2,37 @@ import styled from "@emotion/styled";
 
 const PaginationControls = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  gap: 1.5rem;
   margin-top: 2rem;
+  margin-bottom: 2rem;
+`;
+
+const PageButton = styled.button`
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid #6c5ce7;
+  background-color: white;
+  color: #6c5ce7;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #6c5ce7;
+    color: white;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+`;
+
+const PageInfo = styled.span`
+  font-weight: 600;
+  color: #2d3436;
 `;
 
 interface PaginationProps {
@@ -19,17 +47,17 @@ export function Pagination({ currentPage, totalPages, onPrev, onNext }: Paginati
 
   return (
     <PaginationControls>
-      <button disabled={currentPage === 1} onClick={onPrev}>
+      <PageButton disabled={currentPage === 1} onClick={onPrev}>
         Previous
-      </button>
+      </PageButton>
 
-      <span>
+      <PageInfo>
         Page {currentPage} of {totalPages}
-      </span>
+      </PageInfo>
 
-      <button disabled={currentPage === totalPages} onClick={onNext}>
+      <PageButton disabled={currentPage === totalPages} onClick={onNext}>
         Next
-      </button>
+      </PageButton>
     </PaginationControls>
   );
 }
