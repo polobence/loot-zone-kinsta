@@ -7,15 +7,18 @@ import { ThemeProvider } from "@emotion/react";
 import App from "./App";
 import { theme } from "./theme/theme.ts";
 import { GlobalStyles } from "./theme/GlobalStyles";
+import { CartProvider } from "./context/CartProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <StratusProvider language="en">
       <ThemeProvider theme={theme}>
         <GlobalStyles />
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <CartProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </CartProvider>
       </ThemeProvider>
     </StratusProvider>
   </StrictMode>

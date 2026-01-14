@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Card, Button } from "@kinsta/stratus";
 import type { Product } from "../types/Product";
+import { useCart } from "../context/useCart";
 
 const StyledCard = styled(Card)`
   padding: 1rem;
@@ -21,6 +22,8 @@ interface Props {
 }
 
 export function ProductCard({ product }: Props) {
+  const { addToCart } = useCart();
+
   return (
     <StyledCard>
       <ProductImage src={product.imageUrl} alt={product.name} />
@@ -28,7 +31,7 @@ export function ProductCard({ product }: Props) {
       <p>{product.description}</p>
       <p>Category: {product.category}</p>
       <strong>${product.price.toFixed(2)}</strong>
-      <Button>Add to cart</Button>
+      <Button onClick={() => addToCart(product)}>Add to cart</Button>
     </StyledCard>
   );
 }
