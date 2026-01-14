@@ -150,7 +150,7 @@ export const products: Product[] = [
     name: "Desk Lamp",
     price: 59.99,
     description: "LED desk lamp with brightness control",
-    imageUrl: "https://picsum.photos/id/1030/400/300",
+    imageUrl: "https://picsum.photos/id/1032/400/300",
     category: "other",
   },
   {
