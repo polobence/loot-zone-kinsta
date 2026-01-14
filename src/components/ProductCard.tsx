@@ -7,6 +7,7 @@ const StyledCard = styled(Card)`
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  color: #000;
 `;
 
 const ProductImage = styled.img`
@@ -25,6 +26,7 @@ export function ProductCard({ product }: Props) {
       <ProductImage src={product.imageUrl} alt={product.name} />
       <h3>{product.name}</h3>
       <p>{product.description}</p>
+      <p>Category: {product.category}</p>
       <strong>${product.price.toFixed(2)}</strong>
       <Button>Add to cart</Button>
     </StyledCard>
