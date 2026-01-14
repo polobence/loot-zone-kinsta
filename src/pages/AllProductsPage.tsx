@@ -1,31 +1,15 @@
-import styled from "@emotion/styled";
 import { ProductList } from "../components/ProductList";
 import { useState } from "react";
 import { products } from "../data/products";
-
-const FilterBar = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-`;
-
-const FilterButton = styled.button<{ isActive?: boolean }>`
-  padding: 0.5rem 1rem;
-  border: 1px solid #ccc;
-  background: ${({ isActive }) => (isActive ? "#6c5ce7" : "white")};
-  color: ${({ isActive }) => (isActive ? "white" : "black")};
-  cursor: pointer;
-  border-radius: 4px;
-
-  &:hover {
-    background: #6c5ce7;
-    color: white;
-  }
-`;
+import { PageSizeSelect } from "../components/PageSizeSelect";
+import { Pagination } from "../components/Pagination";
+import { CategoryFilter } from "../components/CategoryFilter";
 
 const categories = ["all", "keyboard", "mouse", "headset", "controller", "other"] as const;
 
 export function AllProductsPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedCategory, setSelectedCategory] = useState<(typeof categories)[number]>("all");
 
   const filteredProducts =
@@ -33,22 +17,49 @@ export function AllProductsPage() {
       ? products
       : products.filter((product) => product.category === selectedCategory);
 
+  const totalPages = Math.ceil(filteredProducts.length / pageSize);
+
+  const currentProducts = filteredProducts.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
   return (
     <>
       <h1>All Gaming Accessories</h1>
 
-      <FilterBar>
-        {categories.map((category) => (
-          <FilterButton
-            key={category}
-            isActive={selectedCategory === category}
-            onClick={() => setSelectedCategory(category)}>
-            {category.toUpperCase()}
-          </FilterButton>
-        ))}
-      </FilterBar>
+      <PageSizeSelect
+        value={pageSize}
+        onChange={(value) => {
+          setPageSize(value);
+          setCurrentPage(1);
+        }}
+      />
 
-      <ProductList products={filteredProducts} />
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPrev={() => setCurrentPage((p) => p - 1)}
+        onNext={() => setCurrentPage((p) => p + 1)}
+      />
+
+      <CategoryFilter
+        categories={categories}
+        selected={selectedCategory}
+        onSelect={(category) => {
+          setSelectedCategory(category);
+          setCurrentPage(1);
+        }}
+      />
+
+      <ProductList products={currentProducts} />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPrev={() => setCurrentPage((p) => p - 1)}
+        onNext={() => setCurrentPage((p) => p + 1)}
+      />
     </>
   );
 }
