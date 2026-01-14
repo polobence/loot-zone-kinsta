@@ -17,6 +17,11 @@ const ProductImage = styled.img`
   object-fit: cover;
 `;
 
+const Price = styled.strong`
+  font-size: 1.4rem;
+  margin-right: 1rem;
+`;
+
 interface Props {
   product: Product;
 }
@@ -30,7 +35,7 @@ export function ProductCard({ product }: Props) {
       <h3>{product.name}</h3>
       <p>{product.description}</p>
       <p>Category: {product.category}</p>
-      <strong>${product.price.toFixed(2)}</strong>
+      <Price>${product.price.toFixed(2)}</Price>
       <Button onClick={() => addToCart(product)}>Add to cart</Button>
     </StyledCard>
   );
