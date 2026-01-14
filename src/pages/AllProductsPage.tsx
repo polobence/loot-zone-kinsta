@@ -1,34 +1,9 @@
-import styled from "@emotion/styled";
 import { ProductList } from "../components/ProductList";
 import { useState } from "react";
 import { products } from "../data/products";
-
-const FilterBar = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-`;
-
-const FilterButton = styled.button<{ isActive?: boolean }>`
-  padding: 0.5rem 1rem;
-  border: 1px solid #ccc;
-  background: ${({ isActive }) => (isActive ? "#6c5ce7" : "white")};
-  color: ${({ isActive }) => (isActive ? "white" : "black")};
-  cursor: pointer;
-  border-radius: 4px;
-
-  &:hover {
-    background: #6c5ce7;
-    color: white;
-  }
-`;
-
-const PaginationControls = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 2rem;
-`;
+import { PageSizeSelect } from "../components/PageSizeSelect";
+import { Pagination } from "../components/Pagination";
+import { CategoryFilter } from "../components/CategoryFilter";
 
 const categories = ["all", "keyboard", "mouse", "headset", "controller", "other"] as const;
 
@@ -53,47 +28,29 @@ export function AllProductsPage() {
     <>
       <h1>All Gaming Accessories</h1>
 
-      <label>
-        Products per page:{" "}
-        <select
-          value={pageSize}
-          onChange={(e) => {
-            setPageSize(Number(e.target.value));
-            setCurrentPage(1);
-          }}>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={30}>30</option>
-        </select>
-      </label>
+      <PageSizeSelect
+        value={pageSize}
+        onChange={(value) => {
+          setPageSize(value);
+          setCurrentPage(1);
+        }}
+      />
 
-      <PaginationControls>
-        <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>
-          Previous
-        </button>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPrev={() => setCurrentPage((p) => p - 1)}
+        onNext={() => setCurrentPage((p) => p + 1)}
+      />
 
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-
-        <button disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)}>
-          Next
-        </button>
-      </PaginationControls>
-
-      <FilterBar>
-        {categories.map((category) => (
-          <FilterButton
-            key={category}
-            isActive={selectedCategory === category}
-            onClick={() => {
-              setSelectedCategory(category);
-              setCurrentPage(1);
-            }}>
-            {category.toUpperCase()}
-          </FilterButton>
-        ))}
-      </FilterBar>
+      <CategoryFilter
+        categories={categories}
+        selected={selectedCategory}
+        onSelect={(category) => {
+          setSelectedCategory(category);
+          setCurrentPage(1);
+        }}
+      />
 
       <ProductList products={currentProducts} />
     </>
