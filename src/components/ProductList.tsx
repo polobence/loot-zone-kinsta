@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { products } from "../data/products";
+import type { Product } from "../types/Product";
 import { ProductCard } from "./ProductCard";
 
 const Grid = styled.div`
@@ -8,7 +8,11 @@ const Grid = styled.div`
   gap: 1.5rem;
 `;
 
-export function ProductList() {
+interface ProductListProps {
+  products: Product[];
+}
+
+export function ProductList({ products }: ProductListProps) {
   return (
     <Grid>
       {products.map((product) => (
