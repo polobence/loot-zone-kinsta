@@ -41,7 +41,7 @@ export function AllProductsPage() {
         {categories.map((category) => (
           <FilterButton
             key={category}
-            active={selectedCategory === category}
+            isActive={selectedCategory === category}
             onClick={() => setSelectedCategory(category)}>
             {category.toUpperCase()}
           </FilterButton>
