@@ -36,6 +36,9 @@ export function Header() {
           <NavLink to="/">
             <NavButton>All Products</NavButton>
           </NavLink>
+          <NavLink to="/cart">
+            <NavButton>Cart</NavButton>
+          </NavLink>
         </Nav>
       </HeaderInner>
     </HeaderWrapper>
