@@ -1,4 +1,4 @@
-import { useCart } from "../context/useCart";
+import { useCart } from "../context/cart/useCart";
 import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
 
@@ -28,7 +28,7 @@ export function CartPage() {
         {cartItems.map((item) => (
           <div key={item.id}>
             {item.name} x {item.quantity} - ${(item.price * item.quantity).toFixed(2)}
-            <Button onClick={() => removeFromCart(item.id)}>Remove One</Button>
+            <Button onClick={() => removeFromCart(item.id)}>Remove</Button>
           </div>
         ))}
       </List>

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
-import type { CartItem } from "../types/Cart";
-import type { Product } from "../types/Product";
+import type { CartItem } from "../../types/Cart";
+import type { Product } from "../../types/Product";
 import { CartContext } from "./CartContext";
 
 export function CartProvider({ children }: { children: ReactNode }) {

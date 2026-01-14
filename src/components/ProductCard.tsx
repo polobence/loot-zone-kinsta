@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { Card, Button } from "@kinsta/stratus";
 import type { Product } from "../types/Product";
-import { useCart } from "../context/useCart";
+import { useCart } from "../context/cart/useCart";
 
 const StyledCard = styled(Card)`
   padding: 1rem;
