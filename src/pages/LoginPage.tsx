@@ -45,21 +45,27 @@ export function LoginPage() {
   };
 
   return (
-    <Form>
-      <h2>Login</h2>
-      <Input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <Input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      {error && <Error>{error}</Error>}
-      <Button onClick={handleSubmit}>Login</Button>
-    </Form>
+    <>
+      <Form>
+        <h2>Login</h2>
+        <Input
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <Input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        {error && <Error>{error}</Error>}
+        <Button onClick={handleSubmit}>Login</Button>
+      </Form>
+
+      <p>
+        Don’t have an account? <Button onClick={() => navigate("/register")}>Register</Button>
+      </p>
+    </>
   );
 }
