@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { Card, Button } from "@kinsta/stratus";
 import type { Product } from "../types/Product";
 import { useCart } from "../context/cart/useCart";
+import { useNavigate } from "react-router-dom";
 
 const StyledCard = styled(Card)`
   padding: 1rem;
@@ -19,7 +20,12 @@ const ProductImage = styled.img`
 
 const Price = styled.strong`
   font-size: 1.4rem;
-  margin-right: 1rem;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
 `;
 
 interface Props {
@@ -28,15 +34,21 @@ interface Props {
 
 export function ProductCard({ product }: Props) {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   return (
     <StyledCard>
       <ProductImage src={product.imageUrl} alt={product.name} />
+
       <h3>{product.name}</h3>
       <p>{product.description}</p>
       <p>Category: {product.category}</p>
       <Price>${product.price.toFixed(2)}</Price>
-      <Button onClick={() => addToCart(product)}>Add to cart</Button>
+
+      <Actions>
+        <Button onClick={() => addToCart(product)}>Add to cart</Button>
+        <Button onClick={() => navigate(`/products/${product.id}`)}>Show details</Button>
+      </Actions>
     </StyledCard>
   );
 }
