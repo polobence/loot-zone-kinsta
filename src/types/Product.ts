@@ -3,6 +3,7 @@ export interface Product {
   name: string;
   price: number;
   description: string;
+  details: string;
   imageUrl: string;
   category: "keyboard" | "mouse" | "headset" | "controller" | "other";
 }

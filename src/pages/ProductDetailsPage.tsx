@@ -42,7 +42,7 @@ export function ProductDetailsPage() {
 
       <div>
         <h1>{product.name}</h1>
-        <p>{product.description}</p>
+        <p>{product.details}</p>
         <h2>${product.price.toFixed(2)}</h2>
 
         <Button onClick={() => addToCart(product)}>Add to Cart</Button>
