@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { products } from "../data/products";
 import { Button } from "@kinsta/stratus";
 import styled from "@emotion/styled";
@@ -20,6 +20,7 @@ const Image = styled.img`
 export function ProductDetailsPage() {
   const { productId } = useParams();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   const product = products.find((product) => product.id === productId);
 
@@ -29,7 +30,11 @@ export function ProductDetailsPage() {
 
   return (
     <Wrapper>
-      <Image src={product.imageUrl} alt={product.name} />
+      <div>
+        <Button onClick={() => navigate(-1)}>← Go Back</Button>
+
+        <Image src={product.imageUrl} alt={product.name} />
+      </div>
 
       <div>
         <h1>{product.name}</h1>
