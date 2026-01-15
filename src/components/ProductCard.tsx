@@ -20,7 +20,6 @@ const ProductImage = styled.img`
 
 const Price = styled.strong`
   font-size: 1.4rem;
-  margin-right: 1rem;
 `;
 
 const Actions = styled.div`
