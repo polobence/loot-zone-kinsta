@@ -4,13 +4,23 @@ import { useAuth } from "../context/auth/useAuth";
 import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+`;
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   max-width: 400px;
   margin: 5rem auto;
-  padding: 2rem;
+  padding: 3rem;
   border: 1px solid #ddd;
   border-radius: 8px;
 `;
@@ -45,7 +55,7 @@ export function LoginPage() {
   };
 
   return (
-    <>
+    <Container>
       <Form>
         <h2>Login</h2>
         <Input
@@ -66,6 +76,6 @@ export function LoginPage() {
       <p>
         Don’t have an account? <Button onClick={() => navigate("/register")}>Register</Button>
       </p>
-    </>
+    </Container>
   );
 }
