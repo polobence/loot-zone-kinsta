@@ -2,6 +2,12 @@ import styled from "@emotion/styled";
 import { Card, Button } from "@kinsta/stratus";
 import type { Product } from "../types/Product";
 import { useCart } from "../context/cart/useCart";
+import { Link } from "react-router-dom";
+
+const CardLink = styled(Link)`
+  text-decoration: none;
+  color: inherit;
+`;
 
 const StyledCard = styled(Card)`
   padding: 1rem;
@@ -30,13 +36,15 @@ export function ProductCard({ product }: Props) {
   const { addToCart } = useCart();
 
   return (
-    <StyledCard>
-      <ProductImage src={product.imageUrl} alt={product.name} />
-      <h3>{product.name}</h3>
-      <p>{product.description}</p>
-      <p>Category: {product.category}</p>
-      <Price>${product.price.toFixed(2)}</Price>
-      <Button onClick={() => addToCart(product)}>Add to cart</Button>
-    </StyledCard>
+    <CardLink to={`/products/${product.id}`}>
+      <StyledCard>
+        <ProductImage src={product.imageUrl} alt={product.name} />
+        <h3>{product.name}</h3>
+        <p>{product.description}</p>
+        <p>Category: {product.category}</p>
+        <Price>${product.price.toFixed(2)}</Price>
+        <Button onClick={() => addToCart(product)}>Add to cart</Button>
+      </StyledCard>
+    </CardLink>
   );
 }
