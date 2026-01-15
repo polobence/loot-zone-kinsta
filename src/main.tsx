@@ -15,13 +15,13 @@ createRoot(document.getElementById("root")!).render(
     <StratusProvider language="en">
       <ThemeProvider theme={theme}>
         <GlobalStyles />
-        <AuthProvider>
-          <CartProvider>
+        <CartProvider>
+          <AuthProvider>
             <BrowserRouter>
               <App />
             </BrowserRouter>
-          </CartProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </CartProvider>
       </ThemeProvider>
     </StratusProvider>
   </StrictMode>
