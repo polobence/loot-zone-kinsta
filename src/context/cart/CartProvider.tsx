@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { CartItem } from "../../types/Cart";
 import type { Product } from "../../types/Product";
 import { CartContext } from "./CartContext";
@@ -9,6 +9,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const storedCart = localStorage.getItem(CART_STORAGE_KEY);
     return storedCart ? JSON.parse(storedCart) : [];
   });
+
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const addToCart = (product: Product) => {
     setCartItems((prev) => {
