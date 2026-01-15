@@ -6,8 +6,13 @@ import { CART_STORAGE_KEY } from "../../constants/cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-    return storedCart ? JSON.parse(storedCart) : [];
+    try {
+      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+      return storedCart ? JSON.parse(storedCart) : [];
+    } catch {
+      localStorage.removeItem(CART_STORAGE_KEY);
+      return [];
+    }
   });
 
   useEffect(() => {
