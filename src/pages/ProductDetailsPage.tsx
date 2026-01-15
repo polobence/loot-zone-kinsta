@@ -17,6 +17,10 @@ const Image = styled.img`
   border-radius: 8px;
 `;
 
+const BackButton = styled(Button)`
+  margin-bottom: 1rem;
+`;
+
 export function ProductDetailsPage() {
   const { productId } = useParams();
   const { addToCart } = useCart();
@@ -31,7 +35,7 @@ export function ProductDetailsPage() {
   return (
     <Wrapper>
       <div>
-        <Button onClick={() => navigate(-1)}>← Go Back</Button>
+        <BackButton onClick={() => navigate(-1)}>← Go Back</BackButton>
 
         <Image src={product.imageUrl} alt={product.name} />
       </div>
