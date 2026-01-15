@@ -44,9 +44,14 @@ export function Header() {
           {user ? (
             <NavButton onClick={logout}>Logout</NavButton>
           ) : (
-            <NavLink to="/login">
-              <NavButton isDisabled={false}>Login</NavButton>
-            </NavLink>
+            <>
+              <NavLink to="/login">
+                <NavButton isDisabled={false}>Login</NavButton>
+              </NavLink>
+              <NavLink to="/register">
+                <NavButton isDisabled={false}>Register</NavButton>
+              </NavLink>
+            </>
           )}
         </Nav>
       </HeaderInner>
