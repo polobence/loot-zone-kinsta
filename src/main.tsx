@@ -9,19 +9,22 @@ import { theme } from "./theme/theme.ts";
 import { GlobalStyles } from "./theme/GlobalStyles";
 import { CartProvider } from "./context/cart/CartProvider.tsx";
 import { AuthProvider } from "./context/auth/AuthProvider.tsx";
+import { NotificationProvider } from "./context/notification/NotificationProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <StratusProvider language="en">
       <ThemeProvider theme={theme}>
         <GlobalStyles />
-        <CartProvider>
-          <AuthProvider>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </AuthProvider>
-        </CartProvider>
+        <NotificationProvider>
+          <CartProvider>
+            <AuthProvider>
+              <BrowserRouter>
+                <App />
+              </BrowserRouter>
+            </AuthProvider>
+          </CartProvider>
+        </NotificationProvider>
       </ThemeProvider>
     </StratusProvider>
   </StrictMode>
