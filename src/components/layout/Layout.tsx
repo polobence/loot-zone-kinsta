@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { Header } from "./Header";
 import type { ReactNode } from "react";
-import { Footer } from "../Footer";
+import { Footer } from "./Footer";
 
 const Main = styled.main`
   max-width: 1200px;
