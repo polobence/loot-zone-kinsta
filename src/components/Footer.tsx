@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 const FooterWrapper = styled.footer`
   margin-top: 4rem;
-  padding: 2rem 1rem;
+  padding: 1rem;
   background-color: #1e1e2f;
   color: #ccc;
 `;
