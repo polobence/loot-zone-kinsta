@@ -11,4 +11,8 @@ interface NotificationContextType {
   showNotification: (message: string, type?: NotificationType) => void;
 }
 
-export const NotificationContext = createContext<NotificationContextType | null>(null);
+export const NotificationContext = createContext<NotificationContextType>({
+  showNotification: () => {
+    throw new Error("NotificationContext not initialized");
+  },
+});
