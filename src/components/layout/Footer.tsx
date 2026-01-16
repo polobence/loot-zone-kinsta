@@ -56,7 +56,7 @@ export function Footer() {
 
         <Column>
           <Title>Shop</Title>
-          <Link href="/">All Products</Link>
+          <Link href="/products">All Products</Link>
           <Link href="/cart">Cart</Link>
         </Column>
 

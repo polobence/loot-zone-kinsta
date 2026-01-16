@@ -27,29 +27,61 @@ const NavButton = styled(Button)`
   box-shadow: none;
 `;
 
+const Brand = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
+const BrandName = styled.span`
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #6c5ce7;
+`;
+
+const LogoLink = styled(NavLink)`
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+`;
+
+const LogoImage = styled.img`
+  height: 40px;
+  cursor: pointer;
+`;
+
 export function Header() {
   const { user, logout } = useAuth();
 
   return (
     <HeaderWrapper>
       <HeaderInner>
-        <strong>Loot Zone</strong>
+        <LogoLink to="/">
+          <Brand>
+            <LogoImage src="../../../public/favicon.ico" alt="Loot Zone" />
+            <BrandName>Loot Zone</BrandName>
+          </Brand>
+        </LogoLink>
+
         <Nav>
-          <NavLink to="/">
+          <NavLink to="/products">
             <NavButton>All Products</NavButton>
           </NavLink>
+
           <NavLink to="/cart">
             <NavButton>Cart</NavButton>
           </NavLink>
+
           {user ? (
             <NavButton onClick={logout}>Logout</NavButton>
           ) : (
             <>
               <NavLink to="/login">
-                <NavButton isDisabled={false}>Login</NavButton>
+                <NavButton>Login</NavButton>
               </NavLink>
               <NavLink to="/register">
-                <NavButton isDisabled={false}>Register</NavButton>
+                <NavButton>Register</NavButton>
               </NavLink>
             </>
           )}
