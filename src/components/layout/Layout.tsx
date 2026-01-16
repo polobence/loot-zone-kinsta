@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Header } from "./Header";
 import type { ReactNode } from "react";
+import { Footer } from "../Footer";
 
 const Main = styled.main`
   max-width: 1200px;
@@ -17,6 +18,7 @@ export function Layout({ children }: LayoutProps) {
     <>
       <Header />
       <Main>{children}</Main>
+      <Footer />
     </>
   );
 }
