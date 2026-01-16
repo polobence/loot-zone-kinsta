@@ -3,6 +3,7 @@ import { Card, Button } from "@kinsta/stratus";
 import type { Product } from "../types/Product";
 import { useCart } from "../context/cart/useCart";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../context/notification/useNotification";
 
 const StyledCard = styled(Card)`
   padding: 1rem;
@@ -35,6 +36,7 @@ interface Props {
 export function ProductCard({ product }: Props) {
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   return (
     <StyledCard>
@@ -46,7 +48,13 @@ export function ProductCard({ product }: Props) {
       <Price>${product.price.toFixed(2)}</Price>
 
       <Actions>
-        <Button onClick={() => addToCart(product)}>Add to cart</Button>
+        <Button
+          onClick={() => {
+            addToCart(product);
+            showNotification(`${product.name} added to cart!`, "success");
+          }}>
+          Add to cart
+        </Button>
         <Button onClick={() => navigate(`/products/${product.id}`)}>Show details</Button>
       </Actions>
     </StyledCard>

@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
 import { users } from "../data/users";
 import type { User } from "../types/User";
+import { useNotification } from "../context/notification/useNotification";
 
 const Form = styled.form`
   display: flex;
@@ -29,6 +30,7 @@ const Error = styled.p`
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,7 +62,7 @@ export function RegisterPage() {
     users.push(newUser);
 
     setError("");
-    alert("Registration successful! Redirecting to login...");
+    showNotification("Registration successful! Redirecting to login...");
     navigate("/login");
   };
 
