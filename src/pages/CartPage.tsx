@@ -1,4 +1,7 @@
 import { useCart } from "../context/cart/useCart";
+import { useAuth } from "../context/auth/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
 
@@ -78,9 +81,26 @@ export const EmptyMessage = styled.div`
 
 export function CartPage() {
   const { cartItems, removeFromCart, clearCart, totalItems, totalPrice } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
+
+  if (!user) {
+    return null;
+  }
 
   if (cartItems.length === 0) {
-    return <EmptyMessage>Your cart is empty 🛒</EmptyMessage>;
+    return (
+      <PageWrapper>
+        <Title>Your Cart</Title>
+        <EmptyMessage>Your cart is empty 🛒</EmptyMessage>
+      </PageWrapper>
+    );
   }
 
   return (
