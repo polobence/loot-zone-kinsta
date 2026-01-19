@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { users, type User } from "../../data/users";
+import { users } from "../../data/users";
+import type { User } from "../../types/User";
 import { AuthContext } from "./AuthContext";
 import { useCart } from "../cart/useCart";
 
