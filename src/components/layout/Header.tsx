@@ -59,7 +59,7 @@ export function Header() {
       <HeaderInner>
         <LogoLink to="/">
           <Brand>
-            <LogoImage src="/favicon.ico" alt="Loot Zone" />
+            <LogoImage src="/favicon.ico" alt="" />
             <BrandName>Loot Zone</BrandName>
           </Brand>
         </LogoLink>
