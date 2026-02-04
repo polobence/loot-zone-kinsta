@@ -3,7 +3,9 @@ import { gql } from "apollo-server";
 export const typeDefs = gql`
   type User {
     id: Int!
+    username: String!
     email: String!
+    password: String!
     createdAt: String!
     products: [Product!]!
   }
@@ -28,8 +30,8 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createUser(email: String!, password: String!): User!
-    updateUser(id: Int!, email: String): User!
+    createUser(username: String!, email: String!, password: String!): User!
+    updateUser(id: Int!, username: String, email: String, password: String): User!
     deleteUser(id: Int!): Boolean!
 
     createProduct(

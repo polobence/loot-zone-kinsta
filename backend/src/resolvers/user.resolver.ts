@@ -17,16 +17,28 @@ export const userResolvers = {
   },
 
   Mutation: {
-    createUser: (_: unknown, args: { email: string; password: string }, ctx: Context) => {
+    createUser: (
+      _: unknown,
+      args: { username: string; email: string; password: string },
+      ctx: Context,
+    ) => {
       return ctx.prisma.user.create({
         data: args,
       });
     },
 
-    updateUser: (_: unknown, args: { id: number; email?: string }, ctx: Context) => {
+    updateUser: (
+      _: unknown,
+      args: { id: number; username?: string; email?: string; password?: string },
+      ctx: Context,
+    ) => {
       return ctx.prisma.user.update({
         where: { id: args.id },
-        data: { email: args.email },
+        data: {
+          ...(args.username && { username: args.username }),
+          ...(args.email && { email: args.email }),
+          ...(args.password && { password: args.password }),
+        },
       });
     },
 
