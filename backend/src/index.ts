@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { ApolloServer } from "apollo-server";
 import { typeDefs } from "./schema/typeDefs.ts";
 import { resolvers } from "./schema/resolvers.ts";
