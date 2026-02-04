@@ -4,6 +4,8 @@
     "module": "nodenext",
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
-    "strict": true
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   }
 }
