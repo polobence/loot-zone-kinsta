@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { defineConfig } from "prisma/config";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
