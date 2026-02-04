@@ -1,6 +1,14 @@
 import { gql } from "apollo-server";
 
 export const typeDefs = gql`
+  enum ProductCategory {
+    keyboard
+    mouse
+    headset
+    controller
+    other
+  }
+
   type User {
     id: Int!
     username: String!
@@ -14,9 +22,10 @@ export const typeDefs = gql`
     id: Int!
     name: String!
     description: String!
+    details: String!
     price: Float!
     imageUrl: String!
-    category: String!
+    category: ProductCategory!
     createdAt: String!
     user: User!
   }
@@ -37,9 +46,10 @@ export const typeDefs = gql`
     createProduct(
       name: String!
       description: String!
+      details: String!
       price: Float!
       imageUrl: String!
-      category: String!
+      category: ProductCategory!
       userId: Int!
     ): Product!
 
@@ -47,9 +57,10 @@ export const typeDefs = gql`
       id: Int!
       name: String
       description: String
+      details: String
       price: Float
       imageUrl: String
-      category: String
+      category: ProductCategory
     ): Product!
 
     deleteProduct(id: Int!): Boolean!

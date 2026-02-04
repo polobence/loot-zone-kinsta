@@ -22,6 +22,7 @@ export const productResolvers = {
         data: {
           name: args.name,
           description: args.description,
+          details: args.details,
           price: args.price,
           imageUrl: args.imageUrl,
           category: args.category,
@@ -39,6 +40,7 @@ export const productResolvers = {
       return ctx.prisma.product.update({
         where: { id },
         data,
+        include: { user: true },
       });
     },
 
