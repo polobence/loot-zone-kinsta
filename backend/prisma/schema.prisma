@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum ProductCategory {
+  keyboard
+  mouse
+  headset
+  controller
+  other
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  products  Product[]
+}
+
+model Product {
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String
+  details     String
+  price       Float
+  imageUrl    String
+  category    ProductCategory
+  createdAt   DateTime        @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
