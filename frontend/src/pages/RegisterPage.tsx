@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
-import { users } from "../data/users";
-import type { User } from "../types/User";
 import { useNotification } from "../context/notification/useNotification";
+import { useMutation } from "@apollo/client/react";
+import { REGISTER } from "../graphql/mutations";
+import { type RegisterVariables, type RegisterResponse } from "../types/Register";
 
 const Form = styled.form`
   display: flex;
@@ -30,40 +31,36 @@ const Error = styled.p`
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const [register, { error }] = useMutation<RegisterResponse, RegisterVariables>(REGISTER);
   const { showNotification } = useNotification();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!username || !email || !password || !confirmPassword) {
-      setError("All fields are required");
+      setFormError("All fields are required");
       return;
     }
+
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-    if (users.find((u) => u.username === username)) {
-      setError("Username already exists");
+      setFormError("Passwords do not match");
       return;
     }
 
-    const newUser: User = {
-      id: (users.length + 1).toString(),
-      username,
-      email,
-      password,
-    };
-    users.push(newUser);
+    const { data } = await register({
+      variables: { username, email, password },
+    });
 
-    setError("");
-    showNotification("Registration successful! Redirecting to login...");
-    navigate("/login");
+    if (data) {
+      localStorage.setItem("token", data.register.token);
+      showNotification("Registration successful!");
+      navigate("/login");
+    }
   };
 
   return (
@@ -97,7 +94,8 @@ export function RegisterPage() {
         onChange={(e) => setConfirmPassword(e.target.value)}
       />
 
-      {error && <Error>{error}</Error>}
+      {error && <Error>{error.message}</Error>}
+      {formError && <Error>{formError}</Error>}
 
       <Button onClick={handleSubmit}>Register</Button>
     </Form>
