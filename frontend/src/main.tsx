@@ -10,22 +10,26 @@ import { GlobalStyles } from "./theme/GlobalStyles";
 import { CartProvider } from "./context/cart/CartProvider.tsx";
 import { AuthProvider } from "./context/auth/AuthProvider.tsx";
 import { NotificationProvider } from "./context/notification/NotificationProvider.tsx";
+import { ApolloProvider } from "@apollo/client/react";
+import { client } from "./lib/apolloClient.ts";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <StratusProvider language="en">
-      <ThemeProvider theme={theme}>
-        <GlobalStyles />
-        <NotificationProvider>
-          <CartProvider>
-            <AuthProvider>
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </AuthProvider>
-          </CartProvider>
-        </NotificationProvider>
-      </ThemeProvider>
-    </StratusProvider>
-  </StrictMode>
+    <ApolloProvider client={client}>
+      <StratusProvider language="en">
+        <ThemeProvider theme={theme}>
+          <GlobalStyles />
+          <NotificationProvider>
+            <CartProvider>
+              <AuthProvider>
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
+              </AuthProvider>
+            </CartProvider>
+          </NotificationProvider>
+        </ThemeProvider>
+      </StratusProvider>
+    </ApolloProvider>
+  </StrictMode>,
 );
