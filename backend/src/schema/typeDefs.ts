@@ -13,7 +13,6 @@ export const typeDefs = gql`
     id: Int!
     username: String!
     email: String!
-    password: String!
     createdAt: String!
     products: [Product!]!
   }
@@ -28,6 +27,16 @@ export const typeDefs = gql`
     category: ProductCategory!
     createdAt: String!
     user: User!
+  }
+
+  type AuthPayload {
+    token: String!
+    user: User!
+  }
+
+  extend type Mutation {
+    register(username: String!, email: String!, password: String!): AuthPayload!
+    login(email: String!, password: String!): AuthPayload!
   }
 
   type Query {
@@ -64,5 +73,8 @@ export const typeDefs = gql`
     ): Product!
 
     deleteProduct(id: Int!): Boolean!
+
+    register(username: String!, email: String!, password: String!): AuthPayload!
+    login(email: String!, password: String!): AuthPayload!
   }
 `;

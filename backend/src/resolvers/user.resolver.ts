@@ -1,4 +1,6 @@
 import { Context } from "../context.ts";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const userResolvers = {
   Query: {
@@ -48,5 +50,37 @@ export const userResolvers = {
       });
       return true;
     },
+  },
+
+  register: async (_: any, { username, email, password }: any, { prisma }: any) => {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password: hashedPassword,
+      },
+    });
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!);
+
+    return { token, user };
+  },
+
+  login: async (_: any, { email, password }: any, { prisma }: any) => {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    const valid = await bcrypt.compare(password, user.password);
+
+    if (!valid) throw new Error("Invalid password");
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!);
+
+    return { token, user };
   },
 };
