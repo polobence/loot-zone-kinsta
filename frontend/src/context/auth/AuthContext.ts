@@ -3,8 +3,9 @@ import type { User } from "../../types/User";
 
 interface AuthContextType {
   user: User | null;
-  login: (username: string, password: string) => boolean;
+  setUser: (user: User | null) => void;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType>({} as AuthContextType);

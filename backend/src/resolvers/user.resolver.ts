@@ -57,7 +57,7 @@ export const userResolvers = {
       const user = await prisma.user.create({
         data: {
           username,
-          email,
+          email: email.toLowerCase(),
           password: hashedPassword,
         },
       });
@@ -69,7 +69,7 @@ export const userResolvers = {
 
     login: async (_: any, { email, password }: any, { prisma }: any) => {
       const user = await prisma.user.findUnique({
-        where: { email },
+        where: { email: email.toLowerCase() },
       });
 
       if (!user) throw new Error("User not found");
