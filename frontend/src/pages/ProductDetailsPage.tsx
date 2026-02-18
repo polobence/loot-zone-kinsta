@@ -1,8 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { products } from "../data/products";
 import { Button } from "@kinsta/stratus";
 import styled from "@emotion/styled";
 import { useCart } from "../context/cart/useCart";
+import { useQuery } from "@apollo/client/react";
+import { GET_PRODUCT } from "../graphql/queries";
+import type { GetProductData } from "../types/Product";
 
 const Wrapper = styled.div`
   max-width: 900px;
@@ -22,11 +24,21 @@ const BackButton = styled(Button)`
 `;
 
 export function ProductDetailsPage() {
-  const { productId } = useParams();
+  const { productId } = useParams<{ productId: string }>();
   const { addToCart } = useCart();
   const navigate = useNavigate();
 
-  const product = products.find((product) => product.id === productId);
+  const productIdInt = parseInt(productId ?? "0");
+
+  const { data, loading, error } = useQuery<GetProductData>(GET_PRODUCT, {
+    variables: { id: productIdInt },
+  });
+
+  if (loading) return <p>Loading product...</p>;
+  if (error) return <p>Error loading product: {error.message}</p>;
+  if (!data?.product) return <h2>Product not found</h2>;
+
+  const product = data.product;
 
   if (!product) {
     return <h2>Product not found</h2>;

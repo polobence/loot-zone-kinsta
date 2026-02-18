@@ -16,3 +16,7 @@ export type Product = {
 export type GetProductsData = {
   products: Product[];
 };
+
+export type GetProductData = {
+  product: Product | null;
+};
