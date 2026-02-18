@@ -24,7 +24,7 @@ function TestComponent() {
 
 beforeEach(() => {
   if (!users.find((u) => u.username === "testuser")) {
-    users.push({ id: "999", username: "testuser", email: "a@b.com", password: "password" });
+    users.push({ id: "999", username: "testuser", email: "a@b.com" });
   }
 });
 

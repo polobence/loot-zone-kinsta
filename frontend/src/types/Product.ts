@@ -1,9 +1,18 @@
-export interface Product {
-  id: string;
+export type Product = {
+  id: number;
   name: string;
-  price: number;
   description: string;
   details: string;
+  price: number;
   imageUrl: string;
-  category: "keyboard" | "mouse" | "headset" | "controller" | "other";
-}
+  category: string;
+  createdAt: string;
+  user: {
+    id: number;
+    username: string;
+  };
+};
+
+export type GetProductsData = {
+  products: Product[];
+};
