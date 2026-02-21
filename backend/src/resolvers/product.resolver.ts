@@ -16,7 +16,7 @@ export const productResolvers = {
 
       const skip = (page - 1) * pageSize;
 
-      const where = category ? { category } : undefined;
+      const where = category ? { category: category as any } : undefined;
 
       let orderBy: any = {};
 

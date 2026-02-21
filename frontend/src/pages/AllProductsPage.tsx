@@ -1,5 +1,5 @@
 import { ProductList } from "../components/ProductList";
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { PageSizeSelect } from "../components/PageSizeSelect";
 import { Pagination } from "../components/Pagination";
 import { CategoryFilter } from "../components/CategoryFilter";
@@ -28,12 +28,6 @@ export function AllProductsPage() {
   const products = data?.products.items ?? [];
   const totalCount = data?.products.totalCount ?? 0;
   const totalPages = Math.ceil(totalCount / pageSize);
-
-  useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages);
-    }
-  }, [totalPages]);
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p>Error loading products: {error.message}</p>;
