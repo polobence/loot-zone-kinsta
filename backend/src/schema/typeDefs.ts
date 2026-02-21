@@ -42,9 +42,13 @@ export const typeDefs = gql`
   type Query {
     users: [User!]!
     user(id: Int!): User
-
-    products: [Product!]!
+    products(page: Int!, pageSize: Int!, category: ProductCategory, sort: String): ProductPage!
     product(id: Int!): Product
+  }
+
+  type ProductPage {
+    items: [Product!]!
+    totalCount: Int!
   }
 
   type Mutation {

@@ -1,5 +1,5 @@
 import { ProductList } from "../components/ProductList";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { PageSizeSelect } from "../components/PageSizeSelect";
 import { Pagination } from "../components/Pagination";
 import { CategoryFilter } from "../components/CategoryFilter";
@@ -7,7 +7,7 @@ import { SortSelect } from "../components/SortSelect";
 import type { SortOption } from "../types/Sort";
 import { useQuery } from "@apollo/client/react";
 import { GET_PRODUCTS } from "../graphql/queries";
-import type { GetProductsData } from "../types/Product";
+import type { GetProductsData, GetProductsVariables } from "../types/Product";
 
 export function AllProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,37 +15,25 @@ export function AllProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<"all" | string>("all");
   const [sortOption, setSortOption] = useState<SortOption>("price-asc");
 
-  const { data, loading, error } = useQuery<GetProductsData>(GET_PRODUCTS);
+  const { data, loading, error } = useQuery<GetProductsData, GetProductsVariables>(GET_PRODUCTS, {
+    variables: {
+      page: currentPage,
+      pageSize,
+      category: selectedCategory === "all" ? undefined : selectedCategory,
+      sort: sortOption,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
 
-  const products = data?.products ?? [];
+  const products = data?.products.items ?? [];
+  const totalCount = data?.products.totalCount ?? 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
-  const filteredProducts =
-    selectedCategory === "all"
-      ? products
-      : products.filter((product) => product.category === selectedCategory);
-
-  const sortedProducts = useMemo(() => {
-    const sorted = [...filteredProducts];
-    switch (sortOption) {
-      case "price-asc":
-        return sorted.sort((a, b) => a.price - b.price);
-      case "price-desc":
-        return sorted.sort((a, b) => b.price - a.price);
-      case "name-asc":
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-      case "name-desc":
-        return sorted.sort((a, b) => b.name.localeCompare(a.name));
-      default:
-        return sorted;
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
     }
-  }, [filteredProducts, sortOption]);
-
-  const totalPages = Math.ceil(filteredProducts.length / pageSize);
-
-  const currentProducts = sortedProducts.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
+  }, [totalPages]);
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p>Error loading products: {error.message}</p>;
@@ -86,7 +74,7 @@ export function AllProductsPage() {
         }}
       />
 
-      <ProductList products={currentProducts} />
+      <ProductList products={products} />
 
       <Pagination
         currentPage={currentPage}

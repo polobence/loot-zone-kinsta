@@ -14,7 +14,17 @@ export type Product = {
 };
 
 export type GetProductsData = {
-  products: Product[];
+  products: {
+    items: Product[];
+    totalCount: number;
+  };
+};
+
+export type GetProductsVariables = {
+  page: number;
+  pageSize: number;
+  category?: string;
+  sort?: string;
 };
 
 export type GetProductData = {
