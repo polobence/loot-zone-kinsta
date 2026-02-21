@@ -18,13 +18,15 @@ jest.mock("react-router-dom", () => ({
 }));
 
 const product: Product = {
-  id: "1",
+  id: 1,
   name: "Gaming Mouse",
   price: 50,
   description: "A great mouse",
   details: "Detailed info",
   imageUrl: "test.jpg",
   category: "mouse",
+  createdAt: "",
+  user: { id: 1, username: "testuser" },
 };
 
 beforeEach(() => {

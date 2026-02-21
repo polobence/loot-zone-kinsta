@@ -24,22 +24,26 @@ const mockNotificationValue = {
 
 const mockProducts: Product[] = [
   {
-    id: "1",
+    id: 1,
     name: "Gaming Mouse",
     price: 59.99,
     description: "High precision RGB gaming mouse",
     details: "Detailed description",
     imageUrl: "test.jpg",
     category: "mouse",
+    createdAt: "",
+    user: { id: 1, username: "testuser" },
   },
   {
-    id: "2",
+    id: 2,
     name: "Mechanical Keyboard",
     price: 119.99,
     description: "Premium mechanical keyboard",
     details: "Detailed description",
     imageUrl: "test2.jpg",
     category: "keyboard",
+    createdAt: "",
+    user: { id: 1, username: "testuser" },
   },
 ];
 
