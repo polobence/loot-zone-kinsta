@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/auth/useAuth";
 import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
+import { useMutation } from "@apollo/client/react";
+import { LOGIN } from "../graphql/mutations";
+import type { LoginMutationData, LoginMutationVariables } from "../types/Login";
 
 const Container = styled.div`
   display: flex;
@@ -37,20 +40,34 @@ const Error = styled.p`
 `;
 
 export function LoginPage() {
-  const { login } = useAuth();
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const { setUser } = useAuth();
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loginMutation, { loading }] = useMutation<LoginMutationData, LoginMutationVariables>(
+    LOGIN,
+  );
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = login(username, password);
-    if (success) {
-      setError("");
-      navigate("/");
-    } else {
-      setError("Invalid credentials");
+    setError("");
+
+    try {
+      const { data } = await loginMutation({
+        variables: { email, password },
+      });
+
+      if (data?.login) {
+        const { token, user } = data.login;
+        localStorage.setItem("token", token);
+        setUser(user);
+        navigate("/");
+      }
+    } catch (err: unknown) {
+      setError((err as Error).message);
     }
   };
 
@@ -59,9 +76,10 @@ export function LoginPage() {
       <Form>
         <h2>Login</h2>
         <Input
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <Input
           type="password"
@@ -70,7 +88,7 @@ export function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         {error && <Error>{error}</Error>}
-        <Button onClick={handleSubmit}>Login</Button>
+        <Button onClick={handleSubmit}>{loading ? "Logging in..." : "Login"}</Button>
       </Form>
 
       <p>

@@ -1,48 +1,36 @@
 import { ProductList } from "../components/ProductList";
-import { useState, useMemo } from "react";
-import { products } from "../data/products";
+import { useState } from "react";
 import { PageSizeSelect } from "../components/PageSizeSelect";
 import { Pagination } from "../components/Pagination";
 import { CategoryFilter } from "../components/CategoryFilter";
 import { SortSelect } from "../components/SortSelect";
 import type { SortOption } from "../types/Sort";
-
-const categories = ["all", "keyboard", "mouse", "headset", "controller", "other"] as const;
+import { useQuery } from "@apollo/client/react";
+import { GET_PRODUCTS } from "../graphql/queries";
+import type { GetProductsData, GetProductsVariables } from "../types/Product";
 
 export function AllProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [selectedCategory, setSelectedCategory] = useState<(typeof categories)[number]>("all");
+  const [selectedCategory, setSelectedCategory] = useState<"all" | string>("all");
   const [sortOption, setSortOption] = useState<SortOption>("price-asc");
 
-  const filteredProducts =
-    selectedCategory === "all"
-      ? products
-      : products.filter((product) => product.category === selectedCategory);
+  const { data, loading, error } = useQuery<GetProductsData, GetProductsVariables>(GET_PRODUCTS, {
+    variables: {
+      page: currentPage,
+      pageSize,
+      category: selectedCategory === "all" ? undefined : selectedCategory,
+      sort: sortOption,
+    },
+    notifyOnNetworkStatusChange: true,
+  });
 
-  const sortedProducts = useMemo(() => {
-    const sorted = [...filteredProducts];
+  const products = data?.products.items ?? [];
+  const totalCount = data?.products.totalCount ?? 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
 
-    switch (sortOption) {
-      case "price-asc":
-        return sorted.sort((a, b) => a.price - b.price);
-      case "price-desc":
-        return sorted.sort((a, b) => b.price - a.price);
-      case "name-asc":
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-      case "name-desc":
-        return sorted.sort((a, b) => b.name.localeCompare(a.name));
-      default:
-        return sorted;
-    }
-  }, [filteredProducts, sortOption]);
-
-  const totalPages = Math.ceil(filteredProducts.length / pageSize);
-
-  const currentProducts = sortedProducts.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <p>Error loading products: {error.message}</p>;
 
   return (
     <>
@@ -67,12 +55,12 @@ export function AllProductsPage() {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPrev={() => setCurrentPage((page) => page - 1)}
-        onNext={() => setCurrentPage((page) => page + 1)}
+        onPrev={() => setCurrentPage((page) => Math.max(1, page - 1))}
+        onNext={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
       />
 
       <CategoryFilter
-        categories={categories}
+        categories={["all", "keyboard", "mouse", "headset", "controller", "other"]}
         selected={selectedCategory}
         onSelect={(category) => {
           setSelectedCategory(category);
@@ -80,13 +68,13 @@ export function AllProductsPage() {
         }}
       />
 
-      <ProductList products={currentProducts} />
+      <ProductList products={products} />
 
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPrev={() => setCurrentPage((page) => page - 1)}
-        onNext={() => setCurrentPage((page) => page + 1)}
+        onPrev={() => setCurrentPage((page) => Math.max(1, page - 1))}
+        onNext={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
       />
     </>
   );

@@ -5,13 +5,15 @@ import { CART_STORAGE_KEY } from "../../constants/cart";
 import type { Product } from "../../types/Product.ts";
 
 const product: Product = {
-  id: "1",
+  id: 1,
   name: "Gaming Mouse",
   price: 50,
   description: "Test product",
   details: "Detailed info",
   imageUrl: "",
   category: "mouse",
+  createdAt: "",
+  user: { id: 1, username: "testuser" },
 };
 
 function TestComponent() {

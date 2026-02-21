@@ -7,7 +7,7 @@ import type { User } from "../types/User";
 
 function renderWithAuth(user: User | null) {
   return render(
-    <AuthContext.Provider value={{ user, login: jest.fn(), logout: jest.fn() }}>
+    <AuthContext.Provider value={{ user, setUser: jest.fn(), login: jest.fn(), logout: jest.fn() }}>
       <CartProvider>
         <MemoryRouter initialEntries={["/cart"]}>
           <Routes>
@@ -36,7 +36,8 @@ test("displays a cart item and total", () => {
   const fakeUser = { id: "1", username: "test", email: "a@b.com", password: "123" };
 
   render(
-    <AuthContext.Provider value={{ user: fakeUser, login: jest.fn(), logout: jest.fn() }}>
+    <AuthContext.Provider
+      value={{ user: fakeUser, setUser: jest.fn(), login: jest.fn(), logout: jest.fn() }}>
       <CartProvider>
         <MemoryRouter>
           <CartPage />
