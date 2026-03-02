@@ -33,3 +33,31 @@ export const GET_PRODUCT = gql`
     }
   }
 `;
+
+export const GET_USERS = gql`
+  query GetUsers {
+    users {
+      id
+      username
+      email
+      role
+    }
+  }
+`;
+
+export const GET_ALL_PRODUCTS = gql`
+  query GetAllProducts {
+    products(page: 1, pageSize: 1000) {
+      items {
+        id
+        name
+        description
+        details
+        price
+        imageUrl
+        category
+      }
+      totalCount
+    }
+  }
+`;

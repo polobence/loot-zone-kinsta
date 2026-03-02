@@ -7,6 +7,7 @@ import { useAuth } from "./context/auth/useAuth";
 import { ProductDetailsPage } from "./pages/ProductDetailsPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { HomePage } from "./pages/HomePage";
+import { AdminPage } from "./pages/AdminPage";
 
 function App() {
   const { user } = useAuth();
@@ -20,6 +21,10 @@ function App() {
         <Route path="/products" element={<AllProductsPage />} />
         <Route path="/products/:productId" element={<ProductDetailsPage />} />
         <Route path="/cart" element={user ? <CartPage /> : <Navigate to="/login" replace />} />
+        <Route
+          path="/admin"
+          element={user?.role === "ADMIN" ? <AdminPage /> : <Navigate to="/" replace />}
+        />
       </Routes>
     </Layout>
   );

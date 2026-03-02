@@ -14,7 +14,12 @@ jest.mock("@apollo/client/react", () => ({
     const mockFn = jest.fn(async ({ variables }) => {
       // Add a testuser if it doesn't exist
       if (!users.find((u) => u.email === "testuser@example.com")) {
-        users.push({ id: "999", username: "testuser", email: "testuser@example.com" });
+        users.push({
+          id: "999",
+          username: "testuser",
+          email: "testuser@example.com",
+          role: "USER",
+        });
       }
 
       const user = users.find((u) => u.email === variables.email);
