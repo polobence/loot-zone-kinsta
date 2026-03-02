@@ -52,6 +52,11 @@ const Form = styled.form`
   margin-bottom: 1rem;
 `;
 
+const ButtonsContainer = styled.div`
+  display: flex;
+  justify-content: space-around;
+`;
+
 const Input = styled.input`
   padding: 0.5rem;
   border: 1px solid #ccc;
@@ -234,23 +239,25 @@ export function AdminPage() {
                   )}
                 </td>
                 <td>
-                  {editingUserId === u.id ? (
-                    <>
-                      <Button onClick={() => handleUpdateUser(u.id)}>Save</Button>
-                      <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        onClick={() => {
-                          setEditingUserId(u.id);
-                          setEditingUser({ username: u.username, email: u.email, role: u.role });
-                        }}>
-                        Edit
-                      </Button>
-                      <Button onClick={() => handleDeleteUser(u.id)}>Delete</Button>
-                    </>
-                  )}
+                  <ButtonsContainer>
+                    {editingUserId === u.id ? (
+                      <>
+                        <Button onClick={() => handleUpdateUser(u.id)}>Save</Button>
+                        <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={() => {
+                            setEditingUserId(u.id);
+                            setEditingUser({ username: u.username, email: u.email, role: u.role });
+                          }}>
+                          Edit
+                        </Button>
+                        <Button onClick={() => handleDeleteUser(u.id)}>Delete</Button>
+                      </>
+                    )}
+                  </ButtonsContainer>
                 </td>
               </tr>
             ))}
@@ -276,32 +283,41 @@ export function AdminPage() {
             value={newProduct.details}
             onChange={(e) => setNewProduct({ ...newProduct, details: e.target.value })}
           />
-          <Input
-            placeholder="Price"
-            type="number"
-            value={newProduct.price}
-            onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
-          />
+          <label>
+            Price
+            <Input
+              placeholder="Price"
+              type="number"
+              value={newProduct.price}
+              onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
+            />
+          </label>
           <Input
             placeholder="Image URL"
             value={newProduct.imageUrl}
             onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
           />
-          <select
-            value={newProduct.category}
-            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}>
-            <option value="keyboard">keyboard</option>
-            <option value="mouse">mouse</option>
-            <option value="headset">headset</option>
-            <option value="controller">controller</option>
-            <option value="other">other</option>
-          </select>
-          <Input
-            placeholder="User ID"
-            type="number"
-            value={newProduct.userId}
-            onChange={(e) => setNewProduct({ ...newProduct, userId: parseInt(e.target.value) })}
-          />
+          <label>
+            Category
+            <select
+              value={newProduct.category}
+              onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}>
+              <option value="keyboard">keyboard</option>
+              <option value="mouse">mouse</option>
+              <option value="headset">headset</option>
+              <option value="controller">controller</option>
+              <option value="other">other</option>
+            </select>
+          </label>
+          <label>
+            User ID
+            <Input
+              placeholder="User ID"
+              type="number"
+              value={newProduct.userId}
+              onChange={(e) => setNewProduct({ ...newProduct, userId: parseInt(e.target.value) })}
+            />
+          </label>
           <Button onClick={handleCreateProduct}>Create Product</Button>
         </Form>
 
@@ -377,28 +393,30 @@ export function AdminPage() {
                   )}
                 </td>
                 <td>
-                  {editingProductId === p.id ? (
-                    <>
-                      <Button onClick={() => handleUpdateProduct(p.id)}>Save</Button>
-                      <Button onClick={() => setEditingProductId(null)}>Cancel</Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        onClick={() => {
-                          setEditingProductId(p.id);
-                          setEditingProduct({
-                            name: p.name,
-                            description: p.description,
-                            price: p.price,
-                            category: p.category,
-                          });
-                        }}>
-                        Edit
-                      </Button>
-                      <Button onClick={() => handleDeleteProduct(p.id)}>Delete</Button>
-                    </>
-                  )}
+                  <ButtonsContainer>
+                    {editingProductId === p.id ? (
+                      <>
+                        <Button onClick={() => handleUpdateProduct(p.id)}>Save</Button>
+                        <Button onClick={() => setEditingProductId(null)}>Cancel</Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={() => {
+                            setEditingProductId(p.id);
+                            setEditingProduct({
+                              name: p.name,
+                              description: p.description,
+                              price: p.price,
+                              category: p.category,
+                            });
+                          }}>
+                          Edit
+                        </Button>
+                        <Button onClick={() => handleDeleteProduct(p.id)}>Delete</Button>
+                      </>
+                    )}
+                  </ButtonsContainer>
                 </td>
               </tr>
             ))}
