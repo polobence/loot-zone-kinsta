@@ -22,12 +22,12 @@ const mockUser: User = {
   id: "1",
   username: "testuser",
   email: "testuser@example.com",
-  password: "password",
+  role: "USER",
 };
 
 const mockCartItems: CartItem[] = [
   {
-    id: "1",
+    id: 1,
     name: "Gaming Mouse",
     price: 50,
     quantity: 2,
@@ -35,23 +35,28 @@ const mockCartItems: CartItem[] = [
     details: "Detailed informations",
     imageUrl: "https://example.com/mouse.jpg",
     category: "mouse",
+    createdAt: new Date().toISOString(),
+    user: { id: 1, username: "testuser" },
   },
   {
-    id: "2",
+    id: 2,
     name: "Keyboard",
     price: 100,
     quantity: 1,
     description: "Mechanical keyboard",
     details: "Detailed informations",
     imageUrl: "https://example.com/keyboard.jpg",
-    category: "mouse",
+    category: "keyboard",
+    createdAt: new Date().toISOString(),
+    user: { id: 1, username: "testuser" },
   },
 ];
 
 export const WithItems: Story = {
   render: () => (
     <StratusProvider language="en">
-      <AuthContext.Provider value={{ user: mockUser, login: () => true, logout: () => {} }}>
+      <AuthContext.Provider
+        value={{ user: mockUser, login: async () => true, logout: () => {}, setUser: () => {} }}>
         <CartContext.Provider
           value={{
             cartItems: mockCartItems,
@@ -70,7 +75,8 @@ export const WithItems: Story = {
 
 export const EmptyCart: Story = {
   render: () => (
-    <AuthContext.Provider value={{ user: mockUser, login: () => true, logout: () => {} }}>
+    <AuthContext.Provider
+      value={{ user: mockUser, login: async () => true, logout: () => {}, setUser: () => {} }}>
       <CartContext.Provider
         value={{
           cartItems: [],
@@ -88,7 +94,8 @@ export const EmptyCart: Story = {
 
 export const NotLoggedIn: Story = {
   render: () => (
-    <AuthContext.Provider value={{ user: null, login: () => true, logout: () => {} }}>
+    <AuthContext.Provider
+      value={{ user: null, login: async () => true, logout: () => {}, setUser: () => {} }}>
       <CartContext.Provider
         value={{
           cartItems: [],
