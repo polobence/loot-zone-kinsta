@@ -126,10 +126,11 @@ describe("User Resolvers", () => {
         id: 1,
         username: "newuser",
         email: "newuser@example.com",
-        password: "plainpassword",
+        password: "hashed_password",
         createdAt: new Date(),
       };
 
+      (bcrypt.hash as jest.Mock).mockResolvedValue("hashed_password");
       (mockContext.prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
 
       const result = await userResolvers.Mutation.createUser(
@@ -142,12 +143,13 @@ describe("User Resolvers", () => {
         mockContext,
       );
 
+      expect(bcrypt.hash).toHaveBeenCalledWith("plainpassword", 10);
       expect(result).toEqual(mockUser);
       expect(mockContext.prisma.user.create).toHaveBeenCalledWith({
         data: {
           username: "newuser",
           email: "newuser@example.com",
-          password: "plainpassword",
+          password: "hashed_password",
         },
       });
     });
@@ -196,6 +198,32 @@ describe("User Resolvers", () => {
       );
 
       expect(result).toEqual(updatedUser);
+    });
+
+    it("should update password with hashing", async () => {
+      const updatedUser = {
+        id: 1,
+        username: "john_doe",
+        email: "john@example.com",
+        password: "hashed_new_password",
+        createdAt: new Date(),
+      };
+
+      (bcrypt.hash as jest.Mock).mockResolvedValue("hashed_new_password");
+      (mockContext.prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
+
+      const result = await userResolvers.Mutation.updateUser(
+        undefined,
+        { id: 1, password: "newplainpassword" },
+        mockContext,
+      );
+
+      expect(bcrypt.hash).toHaveBeenCalledWith("newplainpassword", 10);
+      expect(result).toEqual(updatedUser);
+      expect(mockContext.prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { password: "hashed_new_password" },
+      });
     });
 
     it("should update multiple user fields at once", async () => {
