@@ -14,7 +14,12 @@ jest.mock("@apollo/client/react", () => ({
     const mockFn = jest.fn(async ({ variables }) => {
       // Add a testuser if it doesn't exist
       if (!users.find((u) => u.email === "testuser@example.com")) {
-        users.push({ id: "999", username: "testuser", email: "testuser@example.com" });
+        users.push({
+          id: "999",
+          username: "testuser",
+          email: "testuser@example.com",
+          role: "USER",
+        });
       }
 
       const user = users.find((u) => u.email === variables.email);
@@ -24,6 +29,14 @@ jest.mock("@apollo/client/react", () => ({
       return Promise.reject(new Error("User not found"));
     });
     return [mockFn];
+  },
+  useQuery: ({ skip }: any) => {
+    // Return null when there's no token (skip is true)
+    if (skip) {
+      return { data: null, loading: false, error: null };
+    }
+    // Return null data when there's a token but we're not testing the me query
+    return { data: { me: null }, loading: false, error: null };
   },
 }));
 

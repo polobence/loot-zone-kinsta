@@ -73,6 +73,12 @@ export function Header() {
             <NavButton>Cart</NavButton>
           </NavLink>
 
+          {user && user.role === "ADMIN" && (
+            <NavLink to="/admin">
+              <NavButton>Admin Panel</NavButton>
+            </NavLink>
+          )}
+
           {user ? (
             <NavButton onClick={logout}>Logout</NavButton>
           ) : (

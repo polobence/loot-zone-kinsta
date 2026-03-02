@@ -4,6 +4,14 @@ import jwt from "jsonwebtoken";
 
 export const userResolvers = {
   Query: {
+    me: (_: unknown, __: unknown, ctx: Context) => {
+      if (!ctx.user) return null;
+      return ctx.prisma.user.findUnique({
+        where: { id: ctx.user.id },
+        include: { products: true },
+      });
+    },
+
     users: (_: unknown, __: unknown, ctx: Context) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       return ctx.prisma.user.findMany({
@@ -21,20 +29,21 @@ export const userResolvers = {
   },
 
   Mutation: {
-    createUser: (
+    createUser: async (
       _: unknown,
       args: { username: string; email: string; password: string; role?: "USER" | "ADMIN" },
       ctx: Context,
     ) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
-      const data: any = { username: args.username, email: args.email, password: args.password };
+      const hashedPassword = await bcrypt.hash(args.password, 10);
+      const data: any = { username: args.username, email: args.email, password: hashedPassword };
       if (args.role) data.role = args.role;
       return ctx.prisma.user.create({
         data,
       });
     },
 
-    updateUser: (
+    updateUser: async (
       _: unknown,
       args: {
         id: number;
@@ -46,12 +55,13 @@ export const userResolvers = {
       ctx: Context,
     ) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
+      const hashedPassword = args.password ? await bcrypt.hash(args.password, 10) : undefined;
       return ctx.prisma.user.update({
         where: { id: args.id },
         data: {
           ...(args.username && { username: args.username }),
           ...(args.email && { email: args.email }),
-          ...(args.password && { password: args.password }),
+          ...(hashedPassword && { password: hashedPassword }),
           ...(args.role && { role: args.role }),
         },
       });

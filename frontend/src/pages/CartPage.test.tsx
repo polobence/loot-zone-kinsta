@@ -26,14 +26,14 @@ test("redirects to login if user is not logged in", () => {
 });
 
 test("renders cart if user is logged in", () => {
-  const fakeUser = { id: "1", username: "test", email: "a@b.com", password: "123" };
+  const fakeUser: User = { id: "1", username: "test", email: "a@b.com", role: "USER" };
   renderWithAuth(fakeUser);
 
   expect(screen.getByText("Your Cart")).toBeInTheDocument();
 });
 
 test("displays a cart item and total", () => {
-  const fakeUser = { id: "1", username: "test", email: "a@b.com", password: "123" };
+  const fakeUser: User = { id: "1", username: "test", email: "a@b.com", role: "USER" };
 
   render(
     <AuthContext.Provider

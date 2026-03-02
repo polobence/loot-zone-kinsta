@@ -24,7 +24,7 @@ export const LoggedOut: Story = {
   ),
 };
 
-const mockUser: User = { id: "1", username: "john", email: "john@example.com", password: "1234" };
+const mockUser: User = { id: "1", username: "john", email: "john@example.com", role: "USER" };
 
 export const LoggedIn: Story = {
   render: () => (
@@ -34,4 +34,17 @@ export const LoggedIn: Story = {
       </AuthContext.Provider>
     </StratusProvider>
   ),
+};
+
+export const AdminUser: Story = {
+  render: () => {
+    const admin: User = { ...mockUser, role: "ADMIN" };
+    return (
+      <StratusProvider language="en">
+        <AuthContext.Provider value={{ user: admin, login: () => true, logout: () => {} }}>
+          <Header />
+        </AuthContext.Provider>
+      </StratusProvider>
+    );
+  },
 };
