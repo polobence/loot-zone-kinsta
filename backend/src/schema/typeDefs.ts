@@ -46,6 +46,7 @@ export const typeDefs = gql`
   }
 
   type Query {
+    me: User
     users: [User!]!
     user(id: Int!): User
     products(page: Int!, pageSize: Int!, category: ProductCategory, sort: String): ProductPage!

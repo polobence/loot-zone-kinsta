@@ -30,6 +30,14 @@ jest.mock("@apollo/client/react", () => ({
     });
     return [mockFn];
   },
+  useQuery: ({ skip }: any) => {
+    // Return null when there's no token (skip is true)
+    if (skip) {
+      return { data: null, loading: false, error: null };
+    }
+    // Return null data when there's a token but we're not testing the me query
+    return { data: { me: null }, loading: false, error: null };
+  },
 }));
 
 function TestComponent() {

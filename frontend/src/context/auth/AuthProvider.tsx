@@ -2,14 +2,26 @@ import { useEffect, useState, type ReactNode } from "react";
 import type { User } from "../../types/User";
 import { AuthContext } from "./AuthContext";
 import { useCart } from "../cart/useCart";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { LOGIN } from "../../graphql/mutations";
+import { GET_ME } from "../../graphql/queries";
 import type { LoginMutationData, LoginMutationVariables } from "../../types/Login";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const { clearCart } = useCart();
   const [loginMutation] = useMutation<LoginMutationData, LoginMutationVariables>(LOGIN);
+  const { data: meData } = useQuery<{ me: User | null }>(GET_ME, {
+    skip: !localStorage.getItem("token"),
+  });
+
+  useEffect(() => {
+    if (meData?.me) {
+      setUser(meData.me);
+    } else if (meData === null && localStorage.getItem("token")) {
+      localStorage.removeItem("token");
+    }
+  }, [meData]);
 
   useEffect(() => {
     if (!user) {

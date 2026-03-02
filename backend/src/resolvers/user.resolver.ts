@@ -4,6 +4,14 @@ import jwt from "jsonwebtoken";
 
 export const userResolvers = {
   Query: {
+    me: (_: unknown, __: unknown, ctx: Context) => {
+      if (!ctx.user) return null;
+      return ctx.prisma.user.findUnique({
+        where: { id: ctx.user.id },
+        include: { products: true },
+      });
+    },
+
     users: (_: unknown, __: unknown, ctx: Context) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       return ctx.prisma.user.findMany({
