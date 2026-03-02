@@ -9,9 +9,15 @@ export const typeDefs = gql`
     other
   }
 
+  enum Role {
+    USER
+    ADMIN
+  }
+
   type User {
     id: Int!
     username: String!
+    role: Role!
     email: String!
     createdAt: String!
     products: [Product!]!
@@ -52,8 +58,8 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createUser(username: String!, email: String!, password: String!): User!
-    updateUser(id: Int!, username: String, email: String, password: String): User!
+    createUser(username: String!, email: String!, password: String!, role: Role): User!
+    updateUser(id: Int!, username: String, email: String, password: String, role: Role): User!
     deleteUser(id: Int!): Boolean!
 
     createProduct(

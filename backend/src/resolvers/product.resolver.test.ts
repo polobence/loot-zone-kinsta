@@ -19,6 +19,7 @@ const mockContext: Context = {
       delete: jest.fn(),
     },
   },
+  user: { id: 1, role: "ADMIN" },
 } as unknown as Context;
 
 describe("Product Resolvers", () => {
