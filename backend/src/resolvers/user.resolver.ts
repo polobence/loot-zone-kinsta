@@ -5,12 +5,14 @@ import jwt from "jsonwebtoken";
 export const userResolvers = {
   Query: {
     users: (_: unknown, __: unknown, ctx: Context) => {
+      if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       return ctx.prisma.user.findMany({
         include: { products: true },
       });
     },
 
     user: (_: unknown, args: { id: number }, ctx: Context) => {
+      if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       return ctx.prisma.user.findUnique({
         where: { id: args.id },
         include: { products: true },
@@ -21,30 +23,42 @@ export const userResolvers = {
   Mutation: {
     createUser: (
       _: unknown,
-      args: { username: string; email: string; password: string },
+      args: { username: string; email: string; password: string; role?: "USER" | "ADMIN" },
       ctx: Context,
     ) => {
+      if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
+      const data: any = { username: args.username, email: args.email, password: args.password };
+      if (args.role) data.role = args.role;
       return ctx.prisma.user.create({
-        data: args,
+        data,
       });
     },
 
     updateUser: (
       _: unknown,
-      args: { id: number; username?: string; email?: string; password?: string },
+      args: {
+        id: number;
+        username?: string;
+        email?: string;
+        password?: string;
+        role?: "USER" | "ADMIN";
+      },
       ctx: Context,
     ) => {
+      if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       return ctx.prisma.user.update({
         where: { id: args.id },
         data: {
           ...(args.username && { username: args.username }),
           ...(args.email && { email: args.email }),
           ...(args.password && { password: args.password }),
+          ...(args.role && { role: args.role }),
         },
       });
     },
 
     deleteUser: async (_: unknown, args: { id: number }, ctx: Context) => {
+      if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       await ctx.prisma.user.delete({
         where: { id: args.id },
       });
@@ -62,7 +76,7 @@ export const userResolvers = {
         },
       });
 
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!);
+      const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!);
 
       return { token, user };
     },
@@ -78,7 +92,7 @@ export const userResolvers = {
 
       if (!valid) throw new Error("Invalid password");
 
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!);
+      const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET!);
 
       return { token, user };
     },

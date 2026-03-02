@@ -24,6 +24,7 @@ const mockContext: Context = {
       count: jest.fn(),
     },
   },
+  user: { id: 1, role: "ADMIN" },
 } as unknown as Context;
 
 describe("User Resolvers", () => {
@@ -251,6 +252,7 @@ describe("User Resolvers", () => {
         username: "newuser",
         email: "newuser@example.com",
         password: hashedPassword,
+        role: "USER",
         createdAt: new Date(),
       };
       const mockToken = "jwt_token_value";
@@ -278,7 +280,10 @@ describe("User Resolvers", () => {
           password: hashedPassword,
         },
       });
-      expect(jwt.sign).toHaveBeenCalledWith({ userId: mockUser.id }, "test-secret-key");
+      expect(jwt.sign).toHaveBeenCalledWith(
+        { userId: mockUser.id, role: mockUser.role },
+        "test-secret-key",
+      );
     });
 
     it("should convert email to lowercase during registration", async () => {
@@ -320,6 +325,7 @@ describe("User Resolvers", () => {
         username: "john_doe",
         email: "john@example.com",
         password: "hashed_password",
+        role: "USER",
         createdAt: new Date(),
       };
       const mockToken = "jwt_token_value";
@@ -339,7 +345,10 @@ describe("User Resolvers", () => {
         where: { email: "john@example.com" },
       });
       expect(bcrypt.compare).toHaveBeenCalledWith("password123", mockUser.password);
-      expect(jwt.sign).toHaveBeenCalledWith({ userId: mockUser.id }, "test-secret-key");
+      expect(jwt.sign).toHaveBeenCalledWith(
+        { userId: mockUser.id, role: mockUser.role },
+        "test-secret-key",
+      );
     });
 
     it("should convert email to lowercase during login", async () => {

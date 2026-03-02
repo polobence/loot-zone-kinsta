@@ -63,6 +63,7 @@ export const productResolvers = {
 
   Mutation: {
     createProduct: (_: unknown, args: any, ctx: Context) => {
+      if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       return ctx.prisma.product.create({
         data: {
           name: args.name,
@@ -80,6 +81,7 @@ export const productResolvers = {
     },
 
     updateProduct: (_: unknown, args: any, ctx: Context) => {
+      if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       const { id, ...data } = args;
 
       return ctx.prisma.product.update({
@@ -90,6 +92,7 @@ export const productResolvers = {
     },
 
     deleteProduct: async (_: unknown, args: { id: number }, ctx: Context) => {
+      if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       await ctx.prisma.product.delete({
         where: { id: args.id },
       });
