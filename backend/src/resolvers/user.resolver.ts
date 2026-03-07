@@ -2,6 +2,18 @@ import { Context } from "../context.ts";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+interface NewUserArgs {
+  username: string;
+  email: string;
+  password: string;
+  role?: "USER" | "ADMIN";
+}
+
+interface AuthArgs {
+  email: string;
+  password: string;
+}
+
 export const userResolvers = {
   Query: {
     me: (_: unknown, __: unknown, ctx: Context) => {
@@ -29,14 +41,14 @@ export const userResolvers = {
   },
 
   Mutation: {
-    createUser: async (
-      _: unknown,
-      args: { username: string; email: string; password: string; role?: "USER" | "ADMIN" },
-      ctx: Context,
-    ) => {
+    createUser: async (_: unknown, args: NewUserArgs, ctx: Context) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       const hashedPassword = await bcrypt.hash(args.password, 10);
-      const data: any = { username: args.username, email: args.email, password: hashedPassword };
+      const data: { username: string; email: string; password: string; role?: "USER" | "ADMIN" } = {
+        username: args.username,
+        email: args.email,
+        password: hashedPassword,
+      };
       if (args.role) data.role = args.role;
       return ctx.prisma.user.create({
         data,
@@ -75,7 +87,11 @@ export const userResolvers = {
       return true;
     },
 
-    register: async (_: any, { username, email, password }: any, { prisma }: any) => {
+    register: async (
+      _: unknown,
+      { username, email, password }: NewUserArgs,
+      { prisma }: Context,
+    ) => {
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const user = await prisma.user.create({
@@ -91,7 +107,7 @@ export const userResolvers = {
       return { token, user };
     },
 
-    login: async (_: any, { email, password }: any, { prisma }: any) => {
+    login: async (_: unknown, { email, password }: AuthArgs, { prisma }: Context) => {
       const user = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
       });

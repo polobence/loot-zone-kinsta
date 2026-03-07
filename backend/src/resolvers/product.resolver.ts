@@ -1,24 +1,37 @@
 import { Context } from "../context.ts";
+import { Prisma, ProductCategory } from "@prisma/client";
+
+interface ProductQueryArgs {
+  page: number;
+  pageSize: number;
+  category?: ProductCategory;
+  sort?: string;
+}
+
+interface CreateProductInput {
+  name: string;
+  description: string;
+  details: string;
+  price: number;
+  imageUrl: string;
+  category: ProductCategory;
+  userId: number;
+}
+
+interface UpdateProductInput extends Partial<Omit<CreateProductInput, "userId">> {
+  id: number;
+}
 
 export const productResolvers = {
   Query: {
-    products: async (
-      _: unknown,
-      args: {
-        page: number;
-        pageSize: number;
-        category?: string;
-        sort?: string;
-      },
-      context: Context,
-    ) => {
+    products: async (_: unknown, args: ProductQueryArgs, context: Context) => {
       const { page, pageSize, category, sort } = args;
 
       const skip = (page - 1) * pageSize;
 
-      const where = category ? { category: category as any } : undefined;
+      const where: Prisma.ProductWhereInput | undefined = category ? { category } : undefined;
 
-      let orderBy: any = {};
+      let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" };
 
       switch (sort) {
         case "price-asc":
@@ -62,7 +75,7 @@ export const productResolvers = {
   },
 
   Mutation: {
-    createProduct: (_: unknown, args: any, ctx: Context) => {
+    createProduct: (_: unknown, args: CreateProductInput, ctx: Context) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       return ctx.prisma.product.create({
         data: {
@@ -80,7 +93,7 @@ export const productResolvers = {
       });
     },
 
-    updateProduct: (_: unknown, args: any, ctx: Context) => {
+    updateProduct: (_: unknown, args: UpdateProductInput, ctx: Context) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       const { id, ...data } = args;
 

@@ -7,40 +7,48 @@ import { StratusProvider } from "@kinsta/stratus";
 
 const mockProducts: Product[] = [
   {
-    id: "1",
+    id: 1,
     name: "Gaming Mouse Pro",
     price: 59.99,
     description: "High precision RGB gaming mouse",
     details: "Long detailed description for the product page",
     imageUrl: "https://picsum.photos/400/300?random=1",
     category: "mouse",
+    createdAt: new Date().toISOString(),
+    user: { id: 1, username: "seller1" },
   },
   {
-    id: "2",
+    id: 2,
     name: "Mechanical Keyboard",
     price: 119.99,
     description: "Premium mechanical gaming keyboard",
     details: "Features hot-swappable switches",
     imageUrl: "https://picsum.photos/400/300?random=2",
     category: "keyboard",
+    createdAt: new Date().toISOString(),
+    user: { id: 2, username: "seller2" },
   },
   {
-    id: "3",
+    id: 3,
     name: "Wireless Headset",
     price: 89.99,
     description: "Crystal clear audio wireless headset",
     details: "30-hour battery life",
     imageUrl: "https://picsum.photos/400/300?random=3",
     category: "headset",
+    createdAt: new Date().toISOString(),
+    user: { id: 3, username: "seller3" },
   },
   {
-    id: "4",
+    id: 4,
     name: "Gaming Mouse",
     price: 299.99,
     description: "High precision RGB gaming mouse",
     details: "1ms response time",
     imageUrl: "https://picsum.photos/400/300?random=4",
     category: "mouse",
+    createdAt: new Date().toISOString(),
+    user: { id: 4, username: "seller4" },
   },
 ];
 
@@ -55,7 +63,7 @@ const meta: Meta<typeof ProductList> = {
             cartItems: [],
             totalItems: 0,
             totalPrice: 0,
-            addToCart: (product) => {
+            addToCart: (product: Product) => {
               console.log("🛒 addToCart called:", product);
             },
             removeFromCart: () => {},
@@ -109,7 +117,7 @@ export const ManyProducts: Story = {
       ...mockProducts,
       ...mockProducts.map((p, i) => ({
         ...p,
-        id: `${p.id}-copy-${i}`,
+        id: p.id * 10 + i,
         name: `${p.name} - Copy ${i}`,
       })),
     ],

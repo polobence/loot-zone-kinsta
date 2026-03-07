@@ -4,7 +4,6 @@ const httpLink = new HttpLink({
   uri: "http://localhost:4000",
 });
 
-// middleware to add auth header
 const authLink = new ApolloLink((operation, forward) => {
   const token = localStorage.getItem("token");
   if (token) {

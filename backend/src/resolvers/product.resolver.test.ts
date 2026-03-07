@@ -1,5 +1,6 @@
 import { productResolvers } from "./product.resolver.ts";
 import type { Context } from "../context.ts";
+import { ProductCategory } from "@prisma/client";
 
 const mockContext: Context = {
   prisma: {
@@ -74,7 +75,7 @@ describe("Product Resolvers", () => {
 
       expect(mockContext.prisma.product.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { category: "keyboard" as any },
+          where: { category: "keyboard" as ProductCategory },
         }),
       );
     });
@@ -172,7 +173,7 @@ describe("Product Resolvers", () => {
       );
 
       expect(mockContext.prisma.product.findMany).toHaveBeenCalledWith({
-        where: { category: "mouse" as any },
+        where: { category: "mouse" as ProductCategory },
         skip: 0,
         take: 10,
         orderBy: { price: "asc" },
