@@ -11,8 +11,12 @@ jest.mock("../cart/useCart", () => ({
 
 jest.mock("@apollo/client/react", () => ({
   useMutation: () => {
-    const mockFn = jest.fn(async ({ variables }) => {
-      // Add a testuser if it doesn't exist
+    interface MutationVariables {
+      email: string;
+      password?: string;
+    }
+
+    const mockFn = jest.fn(async ({ variables }: { variables: MutationVariables }) => {
       if (!users.find((u) => u.email === "testuser@example.com")) {
         users.push({
           id: "999",
@@ -30,12 +34,11 @@ jest.mock("@apollo/client/react", () => ({
     });
     return [mockFn];
   },
-  useQuery: ({ skip }: any) => {
-    // Return null when there's no token (skip is true)
+  useQuery: (options: { skip?: boolean }) => {
+    const { skip } = options;
     if (skip) {
       return { data: null, loading: false, error: null };
     }
-    // Return null data when there's a token but we're not testing the me query
     return { data: { me: null }, loading: false, error: null };
   },
 }));
