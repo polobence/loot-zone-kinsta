@@ -21,7 +21,15 @@ import type {
   User,
   Product,
 } from "../types/Admin";
-import { Button, Input, NumberInput, Select, Table, type TableColumnDef } from "@kinsta/stratus";
+import {
+  Button,
+  Input,
+  NumberInput,
+  Select,
+  Table,
+  Textarea,
+  type TableColumnDef,
+} from "@kinsta/stratus";
 import styled from "@emotion/styled";
 
 const Container = styled.div`
@@ -308,7 +316,8 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Input
+            <Textarea
+              hasAutoGrow
               value={editingProduct.details ?? product.details}
               onChange={(e) =>
                 setEditingProduct({
