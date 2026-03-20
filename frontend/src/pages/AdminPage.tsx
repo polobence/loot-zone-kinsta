@@ -21,7 +21,7 @@ import type {
   User,
   Product,
 } from "../types/Admin";
-import { Button } from "@kinsta/stratus";
+import { Button, Select } from "@kinsta/stratus";
 import styled from "@emotion/styled";
 
 const Container = styled.div`
@@ -177,12 +177,12 @@ export function AdminPage() {
             value={newUser.password}
             onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
           />
-          <select
+          <Select
             value={newUser.role}
-            onChange={(e) => setNewUser({ ...newUser, role: e.target.value as "USER" | "ADMIN" })}>
-            <option value="USER">USER</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
+            onChange={() => setNewUser({ ...newUser, role: newUser.role })}>
+            <Select.Option value="USER">USER</Select.Option>
+            <Select.Option value="ADMIN">ADMIN</Select.Option>
+          </Select>
           <Button onClick={handleCreateUser}>Create User</Button>
         </Form>
 
@@ -199,60 +199,62 @@ export function AdminPage() {
             </tr>
           </thead>
           <tbody>
-            {usersData?.users.map((u) => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
+            {usersData?.users.map((user) => (
+              <tr key={user.id}>
+                <td>{user.id}</td>
                 <td>
-                  {editingUserId === u.id ? (
+                  {editingUserId === user.id ? (
                     <Input
-                      value={editingUser.username ?? u.username}
+                      value={editingUser.username ?? user.username}
                       onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
                     />
                   ) : (
-                    u.username
+                    user.username
                   )}
                 </td>
                 <td>
-                  {editingUserId === u.id ? (
+                  {editingUserId === user.id ? (
                     <Input
-                      value={editingUser.email ?? u.email}
+                      value={editingUser.email ?? user.email}
                       onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                     />
                   ) : (
-                    u.email
+                    user.email
                   )}
                 </td>
                 <td>
-                  {editingUserId === u.id ? (
-                    <select
-                      value={editingUser.role ?? u.role}
-                      onChange={(e) =>
-                        setEditingUser({ ...editingUser, role: e.target.value as "USER" | "ADMIN" })
-                      }>
-                      <option value="USER">USER</option>
-                      <option value="ADMIN">ADMIN</option>
-                    </select>
+                  {editingUserId === user.id ? (
+                    <Select
+                      value={editingUser.role ?? user.role}
+                      onChange={() => setEditingUser({ ...editingUser, role: editingUser.role })}>
+                      <Select.Option value="USER">USER</Select.Option>
+                      <Select.Option value="ADMIN">ADMIN</Select.Option>
+                    </Select>
                   ) : (
-                    u.role
+                    user.role
                   )}
                 </td>
                 <td>
                   <ButtonsContainer>
-                    {editingUserId === u.id ? (
+                    {editingUserId === user.id ? (
                       <>
-                        <Button onClick={() => handleUpdateUser(u.id)}>Save</Button>
+                        <Button onClick={() => handleUpdateUser(user.id)}>Save</Button>
                         <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
                       </>
                     ) : (
                       <>
                         <Button
                           onClick={() => {
-                            setEditingUserId(u.id);
-                            setEditingUser({ username: u.username, email: u.email, role: u.role });
+                            setEditingUserId(user.id);
+                            setEditingUser({
+                              username: user.username,
+                              email: user.email,
+                              role: user.role,
+                            });
                           }}>
                           Edit
                         </Button>
-                        <Button onClick={() => handleDeleteUser(u.id)}>Delete</Button>
+                        <Button onClick={() => handleDeleteUser(user.id)}>Delete</Button>
                       </>
                     )}
                   </ButtonsContainer>
@@ -297,21 +299,22 @@ export function AdminPage() {
           />
           <label>
             Category
-            <select
+            <Select
               value={newProduct.category}
-              onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}>
-              <option value="keyboard">keyboard</option>
-              <option value="mouse">mouse</option>
-              <option value="headset">headset</option>
-              <option value="controller">controller</option>
-              <option value="other">other</option>
-            </select>
+              onChange={() => setNewProduct({ ...newProduct, category: newProduct.category })}>
+              <Select.Option value="keyboard">keyboard</Select.Option>
+              <Select.Option value="mouse">mouse</Select.Option>
+              <Select.Option value="headset">headset</Select.Option>
+              <Select.Option value="controller">controller</Select.Option>
+              <Select.Option value="other">other</Select.Option>
+            </Select>
           </label>
           <Button onClick={handleCreateProduct}>Create Product</Button>
         </Form>
 
         {loadingProducts && <p>Loading products...</p>}
         {productsError && <p>Error: {productsError.message}</p>}
+
         <Table>
           <thead>
             <tr>
@@ -324,85 +327,85 @@ export function AdminPage() {
             </tr>
           </thead>
           <tbody>
-            {productsData?.products.items.map((p) => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
+            {productsData?.products.items.map((product) => (
+              <tr key={product.id}>
+                <td>{product.id}</td>
                 <td>
-                  {editingProductId === p.id ? (
+                  {editingProductId === product.id ? (
                     <Input
-                      value={editingProduct.name ?? p.name}
+                      value={editingProduct.name ?? product.name}
                       onChange={(e) =>
                         setEditingProduct({ ...editingProduct, name: e.target.value })
                       }
                     />
                   ) : (
-                    p.name
+                    product.name
                   )}
                 </td>
                 <td>
-                  {editingProductId === p.id ? (
+                  {editingProductId === product.id ? (
                     <Input
-                      value={editingProduct.description ?? p.description}
+                      value={editingProduct.description ?? product.description}
                       onChange={(e) =>
                         setEditingProduct({ ...editingProduct, description: e.target.value })
                       }
                     />
                   ) : (
-                    p.description
+                    product.description
                   )}
                 </td>
                 <td>
-                  {editingProductId === p.id ? (
+                  {editingProductId === product.id ? (
                     <Input
                       type="number"
-                      value={editingProduct.price ?? p.price}
+                      value={editingProduct.price ?? product.price}
                       onChange={(e) =>
                         setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) })
                       }
                     />
                   ) : (
-                    p.price
+                    product.price
                   )}
                 </td>
                 <td>
-                  {editingProductId === p.id ? (
-                    <select
-                      value={editingProduct.category ?? p.category}
-                      onChange={(e) =>
-                        setEditingProduct({ ...editingProduct, category: e.target.value })
+                  {editingProductId === product.id ? (
+                    <Select
+                      value={editingProduct.category ?? product.category}
+                      onChange={() =>
+                        setEditingProduct({ ...editingProduct, category: editingProduct.category })
                       }>
-                      <option value="keyboard">keyboard</option>
-                      <option value="mouse">mouse</option>
-                      <option value="headset">headset</option>
-                      <option value="controller">controller</option>
-                      <option value="other">other</option>
-                    </select>
+                      <Select.Option value="keyboard">keyboard</Select.Option>
+                      <Select.Option value="mouse">mouse</Select.Option>
+                      <Select.Option value="headset">headset</Select.Option>
+                      <Select.Option value="controller">controller</Select.Option>
+                      <Select.Option value="other">other</Select.Option>
+                    </Select>
                   ) : (
-                    p.category
+                    product.category
                   )}
                 </td>
                 <td>
                   <ButtonsContainer>
-                    {editingProductId === p.id ? (
+                    {editingProductId === product.id ? (
                       <>
-                        <Button onClick={() => handleUpdateProduct(p.id)}>Save</Button>
+                        <Button onClick={() => handleUpdateProduct(product.id)}>Save</Button>
                         <Button onClick={() => setEditingProductId(null)}>Cancel</Button>
                       </>
                     ) : (
                       <>
                         <Button
                           onClick={() => {
-                            setEditingProductId(p.id);
+                            setEditingProductId(product.id);
                             setEditingProduct({
-                              name: p.name,
-                              description: p.description,
-                              price: p.price,
-                              category: p.category,
+                              name: product.name,
+                              description: product.description,
+                              price: product.price,
+                              category: product.category,
                             });
                           }}>
                           Edit
                         </Button>
-                        <Button onClick={() => handleDeleteProduct(p.id)}>Delete</Button>
+                        <Button onClick={() => handleDeleteProduct(product.id)}>Delete</Button>
                       </>
                     )}
                   </ButtonsContainer>
