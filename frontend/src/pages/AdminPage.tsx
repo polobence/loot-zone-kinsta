@@ -21,7 +21,7 @@ import type {
   User,
   Product,
 } from "../types/Admin";
-import { Button, Select, Table, type TableColumnDef } from "@kinsta/stratus";
+import { Button, Input, NumberInput, Select, Table, type TableColumnDef } from "@kinsta/stratus";
 import styled from "@emotion/styled";
 
 const Container = styled.div`
@@ -44,11 +44,6 @@ const Form = styled.form`
 const ButtonsContainer = styled.div`
   display: flex;
   justify-content: space-around;
-`;
-
-const Input = styled.input`
-  padding: 0.5rem;
-  border: 1px solid #ccc;
 `;
 
 export function AdminPage() {
@@ -336,13 +331,12 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Input
-              type="number"
+            <NumberInput
               value={editingProduct.price ?? product.price}
-              onChange={(e) =>
+              onChange={(value) =>
                 setEditingProduct({
                   ...editingProduct,
-                  price: parseFloat(e.target.value),
+                  price: parseFloat(value as string),
                 })
               }
             />
@@ -467,6 +461,7 @@ export function AdminPage() {
             onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
           />
           <Select
+            label={"Role"}
             value={newUser.role}
             onChange={(value) => setNewUser({ ...newUser, role: value as "USER" | "ADMIN" })}>
             <Select.Option value="USER">USER</Select.Option>
@@ -499,37 +494,32 @@ export function AdminPage() {
             value={newProduct.details}
             onChange={(e) => setNewProduct({ ...newProduct, details: e.target.value })}
           />
-          <label>
-            Price
-            <Input
-              placeholder="Price"
-              type="number"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
-            />
-          </label>
+          <NumberInput
+            label="Price"
+            value={newProduct.price}
+            onChange={(value) => setNewProduct({ ...newProduct, price: value as number })}
+          />
+
           <Input
             placeholder="Image URL"
             value={newProduct.imageUrl}
             onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
           />
-          <label>
-            Category
-            <Select
-              value={newProduct.category}
-              onChange={(value) =>
-                setNewProduct({
-                  ...newProduct,
-                  category: value as "keyboard" | "mouse" | "headset" | "controller" | "other",
-                })
-              }>
-              <Select.Option value="keyboard">keyboard</Select.Option>
-              <Select.Option value="mouse">mouse</Select.Option>
-              <Select.Option value="headset">headset</Select.Option>
-              <Select.Option value="controller">controller</Select.Option>
-              <Select.Option value="other">other</Select.Option>
-            </Select>
-          </label>
+          <Select
+            label={"Category"}
+            value={newProduct.category}
+            onChange={(value) =>
+              setNewProduct({
+                ...newProduct,
+                category: value as "keyboard" | "mouse" | "headset" | "controller" | "other",
+              })
+            }>
+            <Select.Option value="keyboard">keyboard</Select.Option>
+            <Select.Option value="mouse">mouse</Select.Option>
+            <Select.Option value="headset">headset</Select.Option>
+            <Select.Option value="controller">controller</Select.Option>
+            <Select.Option value="other">other</Select.Option>
+          </Select>
           <Button onClick={handleCreateProduct}>Create Product</Button>
         </Form>
 
