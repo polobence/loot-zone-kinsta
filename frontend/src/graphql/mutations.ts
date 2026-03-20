@@ -9,6 +9,7 @@ export const REGISTER = gql`
         username
         email
         role
+        cart
       }
     }
   }
@@ -23,6 +24,7 @@ export const LOGIN = gql`
         username
         email
         role
+        cart
       }
     }
   }
@@ -62,6 +64,24 @@ export const DELETE_USER = gql`
   }
 `;
 
+export const SET_CART = gql`
+  mutation SetCart($productIds: [Int!]!) {
+    setCart(productIds: $productIds) {
+      id
+      cart
+    }
+  }
+`;
+
+export const CLEAR_CART = gql`
+  mutation ClearCart {
+    clearCart {
+      id
+      cart
+    }
+  }
+`;
+
 export const CREATE_PRODUCT = gql`
   mutation CreateProduct(
     $name: String!
@@ -70,7 +90,6 @@ export const CREATE_PRODUCT = gql`
     $price: Float!
     $imageUrl: String!
     $category: ProductCategory!
-    $userId: Int!
   ) {
     createProduct(
       name: $name
@@ -79,7 +98,6 @@ export const CREATE_PRODUCT = gql`
       price: $price
       imageUrl: $imageUrl
       category: $category
-      userId: $userId
     ) {
       id
       name

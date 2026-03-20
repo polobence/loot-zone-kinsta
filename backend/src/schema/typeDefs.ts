@@ -20,7 +20,7 @@ export const typeDefs = gql`
     role: Role!
     email: String!
     createdAt: String!
-    products: [Product!]!
+    cart: [Int!]!
   }
 
   type Product {
@@ -32,7 +32,6 @@ export const typeDefs = gql`
     imageUrl: String!
     category: ProductCategory!
     createdAt: String!
-    user: User!
   }
 
   type AuthPayload {
@@ -63,6 +62,9 @@ export const typeDefs = gql`
     updateUser(id: Int!, username: String, email: String, password: String, role: Role): User!
     deleteUser(id: Int!): Boolean!
 
+    setCart(productIds: [Int!]!): User!
+    clearCart: User!
+
     createProduct(
       name: String!
       description: String!
@@ -70,7 +72,6 @@ export const typeDefs = gql`
       price: Float!
       imageUrl: String!
       category: ProductCategory!
-      userId: Int!
     ): Product!
 
     updateProduct(

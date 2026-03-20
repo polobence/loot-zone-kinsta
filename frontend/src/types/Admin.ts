@@ -54,7 +54,6 @@ export type CreateProductVariables = {
   price: number;
   imageUrl: string;
   category: string;
-  userId: number;
 };
 
 export type UpdateProductVariables = {

@@ -203,7 +203,6 @@ describe("Product Resolvers", () => {
       expect(result).toEqual(mockProduct);
       expect(mockContext.prisma.product.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
-        include: { user: true },
       });
     });
 
@@ -215,7 +214,6 @@ describe("Product Resolvers", () => {
       expect(result).toBeNull();
       expect(mockContext.prisma.product.findUnique).toHaveBeenCalledWith({
         where: { id: 999 },
-        include: { user: true },
       });
     });
   });
@@ -246,7 +244,6 @@ describe("Product Resolvers", () => {
           price: 49.99,
           imageUrl: "new-mouse.jpg",
           category: "mouse",
-          userId: 1,
         },
         mockContext,
       );
@@ -283,7 +280,6 @@ describe("Product Resolvers", () => {
       expect(mockContext.prisma.product.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { name: "Updated Mouse" },
-        include: { user: true },
       });
     });
 
@@ -313,7 +309,6 @@ describe("Product Resolvers", () => {
       expect(mockContext.prisma.product.update).toHaveBeenCalledWith({
         where: { id: 1 },
         data: { price: 59.99 },
-        include: { user: true },
       });
     });
 
@@ -354,7 +349,6 @@ describe("Product Resolvers", () => {
           price: 99.99,
           imageUrl: "new-mouse.jpg",
         },
-        include: { user: true },
       });
     });
   });

@@ -15,10 +15,9 @@ interface CreateProductInput {
   price: number;
   imageUrl: string;
   category: ProductCategory;
-  userId: number;
 }
 
-interface UpdateProductInput extends Partial<Omit<CreateProductInput, "userId">> {
+interface UpdateProductInput extends Partial<CreateProductInput> {
   id: number;
 }
 
@@ -69,7 +68,6 @@ export const productResolvers = {
     product: (_: unknown, args: { id: number }, ctx: Context) => {
       return ctx.prisma.product.findUnique({
         where: { id: args.id },
-        include: { user: true },
       });
     },
   },
@@ -85,11 +83,7 @@ export const productResolvers = {
           price: args.price,
           imageUrl: args.imageUrl,
           category: args.category,
-          user: {
-            connect: { id: args.userId },
-          },
         },
-        include: { user: true },
       });
     },
 
@@ -100,7 +94,6 @@ export const productResolvers = {
       return ctx.prisma.product.update({
         where: { id },
         data,
-        include: { user: true },
       });
     },
 

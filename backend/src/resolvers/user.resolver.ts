@@ -20,22 +20,18 @@ export const userResolvers = {
       if (!ctx.user) return null;
       return ctx.prisma.user.findUnique({
         where: { id: ctx.user.id },
-        include: { products: true },
       });
     },
 
     users: (_: unknown, __: unknown, ctx: Context) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
-      return ctx.prisma.user.findMany({
-        include: { products: true },
-      });
+      return ctx.prisma.user.findMany();
     },
 
     user: (_: unknown, args: { id: number }, ctx: Context) => {
       if (ctx.user?.role !== "ADMIN") throw new Error("Not authorized");
       return ctx.prisma.user.findUnique({
         where: { id: args.id },
-        include: { products: true },
       });
     },
   },
@@ -85,6 +81,22 @@ export const userResolvers = {
         where: { id: args.id },
       });
       return true;
+    },
+
+    setCart: async (_: unknown, args: { productIds: number[] }, ctx: Context) => {
+      if (!ctx.user) throw new Error("Not authorized");
+      return ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: { cart: args.productIds },
+      });
+    },
+
+    clearCart: async (_: unknown, __: unknown, ctx: Context) => {
+      if (!ctx.user) throw new Error("Not authorized");
+      return ctx.prisma.user.update({
+        where: { id: ctx.user.id },
+        data: { cart: [] },
+      });
     },
 
     register: async (

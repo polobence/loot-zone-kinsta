@@ -16,7 +16,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+    const isAuthenticated = !!localStorage.getItem("token");
+    if (!isAuthenticated) {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+    }
   }, [cartItems]);
 
   const addToCart = (product: Product) => {

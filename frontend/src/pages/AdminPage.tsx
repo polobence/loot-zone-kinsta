@@ -105,7 +105,6 @@ export function AdminPage() {
     price: 0,
     imageUrl: "",
     category: "other",
-    userId: 1,
   });
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editingProduct, setEditingProduct] = useState<Partial<UpdateProductVariables>>({});
@@ -138,7 +137,6 @@ export function AdminPage() {
       price: 0,
       imageUrl: "",
       category: "other",
-      userId: 1,
     });
     refetchProducts();
   };
@@ -308,15 +306,6 @@ export function AdminPage() {
               <option value="controller">controller</option>
               <option value="other">other</option>
             </select>
-          </label>
-          <label>
-            User ID
-            <Input
-              placeholder="User ID"
-              type="number"
-              value={newProduct.userId}
-              onChange={(e) => setNewProduct({ ...newProduct, userId: parseInt(e.target.value) })}
-            />
           </label>
           <Button onClick={handleCreateProduct}>Create Product</Button>
         </Form>

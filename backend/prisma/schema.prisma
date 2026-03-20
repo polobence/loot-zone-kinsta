@@ -26,7 +26,7 @@ model User {
   password  String
   role      Role     @default(USER)
   createdAt DateTime @default(now())
-  products  Product[]
+  cart      Json     @default("[]")
 }
 
 model Product {
@@ -38,7 +38,4 @@ model Product {
   imageUrl    String
   category    ProductCategory
   createdAt   DateTime        @default(now())
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
 }
