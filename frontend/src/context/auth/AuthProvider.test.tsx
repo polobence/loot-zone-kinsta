@@ -6,6 +6,7 @@ import { users } from "../../data/users";
 jest.mock("../cart/useCart", () => ({
   useCart: () => ({
     clearCart: jest.fn(),
+    cartItems: [],
   }),
 }));
 

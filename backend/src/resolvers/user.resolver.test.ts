@@ -42,19 +42,7 @@ describe("User Resolvers", () => {
           email: "john@example.com",
           password: "hashed_password",
           createdAt: new Date(),
-          products: [
-            {
-              id: 1,
-              name: "Gaming Mouse",
-              description: "Test",
-              details: "Test",
-              price: 49.99,
-              imageUrl: "test.jpg",
-              category: "mouse",
-              createdAt: new Date(),
-              userId: 1,
-            },
-          ],
+          cart: [1],
         },
       ];
 
@@ -63,9 +51,7 @@ describe("User Resolvers", () => {
       const result = await userResolvers.Query.users(undefined, undefined, mockContext);
 
       expect(result).toEqual(mockUsers);
-      expect(mockContext.prisma.user.findMany).toHaveBeenCalledWith({
-        include: { products: true },
-      });
+      expect(mockContext.prisma.user.findMany).toHaveBeenCalled();
     });
 
     it("should return empty array when no users exist", async () => {
@@ -85,19 +71,7 @@ describe("User Resolvers", () => {
         email: "john@example.com",
         password: "hashed_password",
         createdAt: new Date(),
-        products: [
-          {
-            id: 1,
-            name: "Gaming Mouse",
-            description: "Test",
-            details: "Test",
-            price: 49.99,
-            imageUrl: "test.jpg",
-            category: "mouse",
-            createdAt: new Date(),
-            userId: 1,
-          },
-        ],
+        cart: [1],
       };
 
       (mockContext.prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
@@ -107,7 +81,6 @@ describe("User Resolvers", () => {
       expect(result).toEqual(mockUser);
       expect(mockContext.prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },
-        include: { products: true },
       });
     });
 
@@ -434,6 +407,54 @@ describe("User Resolvers", () => {
           mockContext,
         ),
       ).rejects.toThrow("Invalid password");
+    });
+  });
+
+  describe("cart mutations", () => {
+    it("should set cart products for authenticated user", async () => {
+      const updatedUser = {
+        id: 1,
+        username: "john_doe",
+        email: "john@example.com",
+        password: "hashed_password",
+        createdAt: new Date(),
+        cart: [1, 2, 3],
+      };
+
+      (mockContext.prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
+
+      const result = await userResolvers.Mutation.setCart(
+        undefined,
+        { productIds: [1, 2, 3] },
+        mockContext,
+      );
+
+      expect(result).toEqual(updatedUser);
+      expect(mockContext.prisma.user.update).toHaveBeenCalledWith({
+        where: { id: mockContext.user!.id },
+        data: { cart: [1, 2, 3] },
+      });
+    });
+
+    it("should clear cart for authenticated user", async () => {
+      const updatedUser = {
+        id: 1,
+        username: "john_doe",
+        email: "john@example.com",
+        password: "hashed_password",
+        createdAt: new Date(),
+        cart: [],
+      };
+
+      (mockContext.prisma.user.update as jest.Mock).mockResolvedValue(updatedUser);
+
+      const result = await userResolvers.Mutation.clearCart(undefined, undefined, mockContext);
+
+      expect(result).toEqual(updatedUser);
+      expect(mockContext.prisma.user.update).toHaveBeenCalledWith({
+        where: { id: mockContext.user!.id },
+        data: { cart: [] },
+      });
     });
   });
 });

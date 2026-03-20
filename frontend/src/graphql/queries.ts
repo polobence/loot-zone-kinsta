@@ -7,6 +7,7 @@ export const GET_ME = gql`
       username
       email
       role
+      cart
     }
   }
 `;
@@ -37,10 +38,6 @@ export const GET_PRODUCT = gql`
       imageUrl
       category
       createdAt
-      user {
-        id
-        username
-      }
     }
   }
 `;
