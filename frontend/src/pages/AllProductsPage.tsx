@@ -39,7 +39,7 @@ export function AllProductsPage() {
       <PageSizeSelect
         value={pageSize}
         onChange={(value) => {
-          setPageSize(value);
+          setPageSize(Number(value));
           setCurrentPage(1);
         }}
       />
