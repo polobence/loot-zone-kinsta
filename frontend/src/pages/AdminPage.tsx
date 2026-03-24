@@ -21,7 +21,15 @@ import type {
   User,
   Product,
 } from "../types/Admin";
-import { Button } from "@kinsta/stratus";
+import {
+  Button,
+  Input,
+  NumberInput,
+  Select,
+  Table,
+  Textarea,
+  type TableColumnDef,
+} from "@kinsta/stratus";
 import styled from "@emotion/styled";
 
 const Container = styled.div`
@@ -34,17 +42,6 @@ const Section = styled.section`
   margin-bottom: 3rem;
 `;
 
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 1rem;
-  th,
-  td {
-    border: 1px solid #e5e5e5;
-    padding: 0.5rem;
-  }
-`;
-
 const Form = styled.form`
   display: flex;
   flex-wrap: wrap;
@@ -55,11 +52,6 @@ const Form = styled.form`
 const ButtonsContainer = styled.div`
   display: flex;
   justify-content: space-around;
-`;
-
-const Input = styled.input`
-  padding: 0.5rem;
-  border: 1px solid #ccc;
 `;
 
 export function AdminPage() {
@@ -152,6 +144,306 @@ export function AdminPage() {
     refetchProducts();
   };
 
+  const userColumns: TableColumnDef<User>[] = [
+    {
+      id: "id",
+      header: "ID",
+      accessorKey: "id",
+    },
+    {
+      id: "username",
+      header: "Username",
+      cell: ({ row }) => {
+        const user = row.original;
+
+        if (editingUserId === user.id) {
+          return (
+            <Input
+              value={editingUser.username ?? user.username}
+              onChange={(e) =>
+                setEditingUser({
+                  ...editingUser,
+                  username: e.target.value,
+                })
+              }
+            />
+          );
+        }
+
+        return user.username;
+      },
+    },
+    {
+      id: "email",
+      header: "Email",
+      cell: ({ row }) => {
+        const user = row.original;
+
+        if (editingUserId === user.id) {
+          return (
+            <Input
+              value={editingUser.email ?? user.email}
+              onChange={(e) =>
+                setEditingUser({
+                  ...editingUser,
+                  email: e.target.value,
+                })
+              }
+            />
+          );
+        }
+
+        return user.email;
+      },
+    },
+    {
+      id: "role",
+      header: "Role",
+      cell: ({ row }) => {
+        const user = row.original;
+
+        if (editingUserId === user.id) {
+          return (
+            <Select
+              value={editingUser.role ?? user.role}
+              onChange={(value) =>
+                setEditingUser({
+                  ...editingUser,
+                  role: value as "USER" | "ADMIN",
+                })
+              }>
+              <Select.Option value="USER">USER</Select.Option>
+              <Select.Option value="ADMIN">ADMIN</Select.Option>
+            </Select>
+          );
+        }
+
+        return user.role;
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const user = row.original;
+
+        if (editingUserId === user.id) {
+          return (
+            <ButtonsContainer>
+              <Button onClick={() => handleUpdateUser(user.id)}>Save</Button>
+              <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
+            </ButtonsContainer>
+          );
+        }
+
+        return (
+          <ButtonsContainer>
+            <Button
+              onClick={() => {
+                setEditingUserId(user.id);
+                setEditingUser({
+                  username: user.username,
+                  email: user.email,
+                  role: user.role,
+                });
+              }}>
+              Edit
+            </Button>
+            <Button onClick={() => handleDeleteUser(user.id)}>Delete</Button>
+          </ButtonsContainer>
+        );
+      },
+    },
+  ];
+
+  const productColumns: TableColumnDef<Product>[] = [
+    {
+      id: "id",
+      header: "ID",
+      accessorKey: "id",
+    },
+    {
+      id: "name",
+      header: "Name",
+      cell: ({ row }) => {
+        const product = row.original;
+
+        if (editingProductId === product.id) {
+          return (
+            <Input
+              value={editingProduct.name ?? product.name}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  name: e.target.value,
+                })
+              }
+            />
+          );
+        }
+
+        return product.name;
+      },
+    },
+    {
+      id: "description",
+      header: "Description",
+      cell: ({ row }) => {
+        const product = row.original;
+
+        if (editingProductId === product.id) {
+          return (
+            <Input
+              value={editingProduct.description ?? product.description}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  description: e.target.value,
+                })
+              }
+            />
+          );
+        }
+
+        return product.description;
+      },
+    },
+    {
+      id: "details",
+      header: "Details",
+      cell: ({ row }) => {
+        const product = row.original;
+
+        if (editingProductId === product.id) {
+          return (
+            <Textarea
+              hasAutoGrow
+              value={editingProduct.details ?? product.details}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  details: e.target.value,
+                })
+              }
+            />
+          );
+        }
+
+        return product.details;
+      },
+    },
+    {
+      id: "price",
+      header: "Price",
+      cell: ({ row }) => {
+        const product = row.original;
+
+        if (editingProductId === product.id) {
+          return (
+            <NumberInput
+              value={editingProduct.price ?? product.price}
+              onChange={(value) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  price: parseFloat(value as string),
+                })
+              }
+            />
+          );
+        }
+
+        return product.price;
+      },
+    },
+    {
+      id: "imageUrl",
+      header: "Image URL",
+      cell: ({ row }) => {
+        const product = row.original;
+
+        if (editingProductId === product.id) {
+          return (
+            <Input
+              value={editingProduct.imageUrl ?? product.imageUrl}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  imageUrl: e.target.value,
+                })
+              }
+            />
+          );
+        }
+
+        return product.imageUrl;
+      },
+    },
+    {
+      id: "category",
+      header: "Category",
+      cell: ({ row }) => {
+        const product = row.original;
+
+        if (editingProductId === product.id) {
+          return (
+            <Select
+              value={editingProduct.category ?? product.category}
+              onChange={(value) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  category: value as "keyboard" | "mouse" | "headset" | "controller" | "other",
+                })
+              }>
+              <Select.Option value="keyboard">keyboard</Select.Option>
+              <Select.Option value="mouse">mouse</Select.Option>
+              <Select.Option value="headset">headset</Select.Option>
+              <Select.Option value="controller">controller</Select.Option>
+              <Select.Option value="other">other</Select.Option>
+            </Select>
+          );
+        }
+
+        return product.category;
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const product = row.original;
+
+        if (editingProductId === product.id) {
+          return (
+            <ButtonsContainer>
+              <Button onClick={() => handleUpdateProduct(product.id)}>Save</Button>
+              <Button onClick={() => setEditingProductId(null)}>Cancel</Button>
+            </ButtonsContainer>
+          );
+        }
+
+        return (
+          <ButtonsContainer>
+            <Button
+              onClick={() => {
+                setEditingProductId(product.id);
+                setEditingProduct({
+                  name: product.name,
+                  description: product.description,
+                  details: product.details,
+                  price: product.price,
+                  imageUrl: product.imageUrl,
+                  category: product.category,
+                });
+              }}>
+              Edit
+            </Button>
+            <Button onClick={() => handleDeleteProduct(product.id)}>Delete</Button>
+          </ButtonsContainer>
+        );
+      },
+    },
+  ];
+
   return (
     <Container>
       <h1>Admin Panel</h1>
@@ -177,90 +469,20 @@ export function AdminPage() {
             value={newUser.password}
             onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
           />
-          <select
+          <Select
+            label={"Role"}
             value={newUser.role}
-            onChange={(e) => setNewUser({ ...newUser, role: e.target.value as "USER" | "ADMIN" })}>
-            <option value="USER">USER</option>
-            <option value="ADMIN">ADMIN</option>
-          </select>
+            onChange={(value) => setNewUser({ ...newUser, role: value as "USER" | "ADMIN" })}>
+            <Select.Option value="USER">USER</Select.Option>
+            <Select.Option value="ADMIN">ADMIN</Select.Option>
+          </Select>
           <Button onClick={handleCreateUser}>Create User</Button>
         </Form>
 
         {loadingUsers && <p>Loading users...</p>}
         {usersError && <p>Error: {usersError.message}</p>}
-        <Table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usersData?.users.map((u) => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
-                <td>
-                  {editingUserId === u.id ? (
-                    <Input
-                      value={editingUser.username ?? u.username}
-                      onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
-                    />
-                  ) : (
-                    u.username
-                  )}
-                </td>
-                <td>
-                  {editingUserId === u.id ? (
-                    <Input
-                      value={editingUser.email ?? u.email}
-                      onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                    />
-                  ) : (
-                    u.email
-                  )}
-                </td>
-                <td>
-                  {editingUserId === u.id ? (
-                    <select
-                      value={editingUser.role ?? u.role}
-                      onChange={(e) =>
-                        setEditingUser({ ...editingUser, role: e.target.value as "USER" | "ADMIN" })
-                      }>
-                      <option value="USER">USER</option>
-                      <option value="ADMIN">ADMIN</option>
-                    </select>
-                  ) : (
-                    u.role
-                  )}
-                </td>
-                <td>
-                  <ButtonsContainer>
-                    {editingUserId === u.id ? (
-                      <>
-                        <Button onClick={() => handleUpdateUser(u.id)}>Save</Button>
-                        <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button
-                          onClick={() => {
-                            setEditingUserId(u.id);
-                            setEditingUser({ username: u.username, email: u.email, role: u.role });
-                          }}>
-                          Edit
-                        </Button>
-                        <Button onClick={() => handleDeleteUser(u.id)}>Delete</Button>
-                      </>
-                    )}
-                  </ButtonsContainer>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+
+        <Table data={usersData?.users || []} columns={userColumns} />
       </Section>
 
       <Section>
@@ -281,136 +503,39 @@ export function AdminPage() {
             value={newProduct.details}
             onChange={(e) => setNewProduct({ ...newProduct, details: e.target.value })}
           />
-          <label>
-            Price
-            <Input
-              placeholder="Price"
-              type="number"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
-            />
-          </label>
+          <NumberInput
+            label="Price"
+            value={newProduct.price}
+            onChange={(value) => setNewProduct({ ...newProduct, price: value as number })}
+          />
+
           <Input
             placeholder="Image URL"
             value={newProduct.imageUrl}
             onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
           />
-          <label>
-            Category
-            <select
-              value={newProduct.category}
-              onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}>
-              <option value="keyboard">keyboard</option>
-              <option value="mouse">mouse</option>
-              <option value="headset">headset</option>
-              <option value="controller">controller</option>
-              <option value="other">other</option>
-            </select>
-          </label>
+          <Select
+            label={"Category"}
+            value={newProduct.category}
+            onChange={(value) =>
+              setNewProduct({
+                ...newProduct,
+                category: value as "keyboard" | "mouse" | "headset" | "controller" | "other",
+              })
+            }>
+            <Select.Option value="keyboard">keyboard</Select.Option>
+            <Select.Option value="mouse">mouse</Select.Option>
+            <Select.Option value="headset">headset</Select.Option>
+            <Select.Option value="controller">controller</Select.Option>
+            <Select.Option value="other">other</Select.Option>
+          </Select>
           <Button onClick={handleCreateProduct}>Create Product</Button>
         </Form>
 
         {loadingProducts && <p>Loading products...</p>}
         {productsError && <p>Error: {productsError.message}</p>}
-        <Table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Price</th>
-              <th>Category</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {productsData?.products.items.map((p) => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
-                <td>
-                  {editingProductId === p.id ? (
-                    <Input
-                      value={editingProduct.name ?? p.name}
-                      onChange={(e) =>
-                        setEditingProduct({ ...editingProduct, name: e.target.value })
-                      }
-                    />
-                  ) : (
-                    p.name
-                  )}
-                </td>
-                <td>
-                  {editingProductId === p.id ? (
-                    <Input
-                      value={editingProduct.description ?? p.description}
-                      onChange={(e) =>
-                        setEditingProduct({ ...editingProduct, description: e.target.value })
-                      }
-                    />
-                  ) : (
-                    p.description
-                  )}
-                </td>
-                <td>
-                  {editingProductId === p.id ? (
-                    <Input
-                      type="number"
-                      value={editingProduct.price ?? p.price}
-                      onChange={(e) =>
-                        setEditingProduct({ ...editingProduct, price: parseFloat(e.target.value) })
-                      }
-                    />
-                  ) : (
-                    p.price
-                  )}
-                </td>
-                <td>
-                  {editingProductId === p.id ? (
-                    <select
-                      value={editingProduct.category ?? p.category}
-                      onChange={(e) =>
-                        setEditingProduct({ ...editingProduct, category: e.target.value })
-                      }>
-                      <option value="keyboard">keyboard</option>
-                      <option value="mouse">mouse</option>
-                      <option value="headset">headset</option>
-                      <option value="controller">controller</option>
-                      <option value="other">other</option>
-                    </select>
-                  ) : (
-                    p.category
-                  )}
-                </td>
-                <td>
-                  <ButtonsContainer>
-                    {editingProductId === p.id ? (
-                      <>
-                        <Button onClick={() => handleUpdateProduct(p.id)}>Save</Button>
-                        <Button onClick={() => setEditingProductId(null)}>Cancel</Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button
-                          onClick={() => {
-                            setEditingProductId(p.id);
-                            setEditingProduct({
-                              name: p.name,
-                              description: p.description,
-                              price: p.price,
-                              category: p.category,
-                            });
-                          }}>
-                          Edit
-                        </Button>
-                        <Button onClick={() => handleDeleteProduct(p.id)}>Delete</Button>
-                      </>
-                    )}
-                  </ButtonsContainer>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+
+        <Table data={productsData?.products.items || []} columns={productColumns} />
       </Section>
     </Container>
   );
