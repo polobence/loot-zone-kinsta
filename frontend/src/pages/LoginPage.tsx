@@ -1,11 +1,16 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/auth/useAuth";
 import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
 import { useMutation } from "@apollo/client/react";
+import { useForm } from "react-hook-form";
 import { LOGIN } from "../graphql/mutations";
 import type { LoginMutationData, LoginMutationVariables } from "../types/Login";
+
+type LoginFormValues = {
+  email: string;
+  password: string;
+};
 
 const Container = styled.div`
   display: flex;
@@ -42,22 +47,24 @@ const Error = styled.p`
 export function LoginPage() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
-  const [error, setError] = useState("");
+  const [loginMutation, { loading, error: loginError }] = useMutation<
+    LoginMutationData,
+    LoginMutationVariables
+  >(LOGIN);
 
-  const [loginMutation, { loading }] = useMutation<LoginMutationData, LoginMutationVariables>(
-    LOGIN,
-  );
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({ mode: "onTouched" });
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
+  const onSubmit = async (formData: LoginFormValues) => {
     try {
       const { data } = await loginMutation({
-        variables: { email, password },
+        variables: {
+          email: formData.email,
+          password: formData.password,
+        },
       });
 
       if (data?.login) {
@@ -67,28 +74,38 @@ export function LoginPage() {
         navigate("/");
       }
     } catch (err: unknown) {
-      setError((err as Error).message);
+      // error already handled by loginError from useMutation
+      console.error(err);
     }
   };
 
   return (
     <Container>
-      <Form>
+      <Form onSubmit={handleSubmit(onSubmit)}>
         <h2>Login</h2>
         <Input
           type="email"
           placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          {...register("email", {
+            required: "Email is required",
+            pattern: { value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/, message: "Invalid email format" },
+          })}
         />
+        {errors.email && <Error>{errors.email.message}</Error>}
+
         <Input
           type="password"
           placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          {...register("password", {
+            required: "Password is required",
+            minLength: { value: 6, message: "Password must be at least 6 characters" },
+          })}
         />
-        {error && <Error>{error}</Error>}
-        <Button onClick={handleSubmit}>{loading ? "Logging in..." : "Login"}</Button>
+        {errors.password && <Error>{errors.password.message}</Error>}
+
+        {(loginError || undefined) && <Error>{loginError?.message}</Error>}
+
+        <Button onClick={handleSubmit(onSubmit)}>{loading ? "Logging in..." : "Login"}</Button>
       </Form>
 
       <p>

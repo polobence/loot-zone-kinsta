@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
+import { useForm, Controller } from "react-hook-form";
 import { GET_USERS, GET_ALL_PRODUCTS } from "../graphql/queries";
 import {
   CREATE_USER,
@@ -32,6 +33,22 @@ import {
 } from "@kinsta/stratus";
 import styled from "@emotion/styled";
 
+type UserFormValues = {
+  username: string;
+  email: string;
+  password: string;
+  role: "USER" | "ADMIN";
+};
+
+type ProductFormValues = {
+  name: string;
+  description: string;
+  details: string;
+  price: number;
+  imageUrl: string;
+  category: "keyboard" | "mouse" | "headset" | "controller" | "other";
+};
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -55,6 +72,8 @@ const ButtonsContainer = styled.div`
 `;
 
 export function AdminPage() {
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const {
     data: usersData,
     loading: loadingUsers,
@@ -65,14 +84,22 @@ export function AdminPage() {
   const [updateUser] = useMutation<{ updateUser: User }, UpdateUserVariables>(UPDATE_USER);
   const [deleteUser] = useMutation<{ deleteUser: boolean }, DeleteUserVariables>(DELETE_USER);
 
-  const [newUser, setNewUser] = useState<Partial<CreateUserVariables>>({
-    username: "",
-    email: "",
-    password: "",
-    role: "USER",
-  });
-  const [editingUserId, setEditingUserId] = useState<number | null>(null);
-  const [editingUser, setEditingUser] = useState<Partial<UpdateUserVariables>>({});
+  const userForm = useForm<UserFormValues>({ defaultValues: { role: "USER" } });
+  const {
+    register: registerUser,
+    handleSubmit: handleSubmitUser,
+    formState: { errors: userErrors },
+    reset: resetUserForm,
+    control: userControl,
+  } = userForm;
+
+  const editingUserForm = useForm<UserFormValues>();
+  const {
+    register: registerEditingUser,
+    handleSubmit: handleSubmitEditingUser,
+    setValue: setEditingUserValue,
+    formState: { errors: editingUserErrors },
+  } = editingUserForm;
 
   const {
     data: productsData,
@@ -90,28 +117,35 @@ export function AdminPage() {
     DELETE_PRODUCT,
   );
 
-  const [newProduct, setNewProduct] = useState<Partial<CreateProductVariables>>({
-    name: "",
-    description: "",
-    details: "",
-    price: 0,
-    imageUrl: "",
-    category: "other",
-  });
-  const [editingProductId, setEditingProductId] = useState<number | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Partial<UpdateProductVariables>>({});
+  const productForm = useForm<ProductFormValues>({ defaultValues: { category: "other" } });
+  const {
+    register: registerProduct,
+    handleSubmit: handleSubmitProduct,
+    formState: { errors: productErrors },
+    reset: resetProductForm,
+    control: productControl,
+  } = productForm;
 
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await createUser({ variables: newUser as CreateUserVariables });
-    setNewUser({ username: "", email: "", password: "", role: "USER" });
+  const editingProductForm = useForm<ProductFormValues>();
+  const {
+    register: registerEditingProduct,
+    handleSubmit: handleSubmitEditingProduct,
+    setValue: setEditingProductValue,
+    formState: { errors: editingProductErrors },
+  } = editingProductForm;
+
+  const onSubmitUser = async (formData: UserFormValues) => {
+    await createUser({ variables: formData });
+    resetUserForm();
     refetchUsers();
   };
 
-  const handleUpdateUser = async (id: number) => {
-    await updateUser({ variables: { id, ...editingUser } });
-    setEditingUserId(null);
-    refetchUsers();
+  const onSubmitEditingUser = async (formData: UserFormValues) => {
+    if (editingUserId) {
+      await updateUser({ variables: { id: editingUserId, ...formData } });
+      setEditingUserId(null);
+      refetchUsers();
+    }
   };
 
   const handleDeleteUser = async (id: number) => {
@@ -119,24 +153,18 @@ export function AdminPage() {
     refetchUsers();
   };
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await createProduct({ variables: newProduct as CreateProductVariables });
-    setNewProduct({
-      name: "",
-      description: "",
-      details: "",
-      price: 0,
-      imageUrl: "",
-      category: "other",
-    });
+  const onSubmitProduct = async (formData: ProductFormValues) => {
+    await createProduct({ variables: formData });
+    resetProductForm();
     refetchProducts();
   };
 
-  const handleUpdateProduct = async (id: number) => {
-    await updateProduct({ variables: { id, ...editingProduct } });
-    setEditingProductId(null);
-    refetchProducts();
+  const onSubmitEditingProduct = async (formData: ProductFormValues) => {
+    if (editingProductId) {
+      await updateProduct({ variables: { id: editingProductId, ...formData } });
+      setEditingProductId(null);
+      refetchProducts();
+    }
   };
 
   const handleDeleteProduct = async (id: number) => {
@@ -158,15 +186,14 @@ export function AdminPage() {
 
         if (editingUserId === user.id) {
           return (
-            <Input
-              value={editingUser.username ?? user.username}
-              onChange={(e) =>
-                setEditingUser({
-                  ...editingUser,
-                  username: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input {...registerEditingUser("username", { required: "Username is required" })} />
+              {editingUserErrors.username && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingUserErrors.username.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -181,15 +208,20 @@ export function AdminPage() {
 
         if (editingUserId === user.id) {
           return (
-            <Input
-              value={editingUser.email ?? user.email}
-              onChange={(e) =>
-                setEditingUser({
-                  ...editingUser,
-                  email: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input
+                type="email"
+                {...registerEditingUser("email", {
+                  required: "Email is required",
+                  pattern: { value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/, message: "Invalid email format" },
+                })}
+              />
+              {editingUserErrors.email && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingUserErrors.email.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -204,17 +236,24 @@ export function AdminPage() {
 
         if (editingUserId === user.id) {
           return (
-            <Select
-              value={editingUser.role ?? user.role}
-              onChange={(value) =>
-                setEditingUser({
-                  ...editingUser,
-                  role: value as "USER" | "ADMIN",
-                })
-              }>
-              <Select.Option value="USER">USER</Select.Option>
-              <Select.Option value="ADMIN">ADMIN</Select.Option>
-            </Select>
+            <div>
+              <Controller
+                name="role"
+                control={editingUserForm.control}
+                rules={{ required: "Role is required" }}
+                render={({ field }) => (
+                  <Select {...field}>
+                    <Select.Option value="USER">USER</Select.Option>
+                    <Select.Option value="ADMIN">ADMIN</Select.Option>
+                  </Select>
+                )}
+              />
+              {editingUserErrors.role && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingUserErrors.role.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -230,7 +269,7 @@ export function AdminPage() {
         if (editingUserId === user.id) {
           return (
             <ButtonsContainer>
-              <Button onClick={() => handleUpdateUser(user.id)}>Save</Button>
+              <Button onClick={handleSubmitEditingUser(onSubmitEditingUser)}>Save</Button>
               <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
             </ButtonsContainer>
           );
@@ -241,11 +280,10 @@ export function AdminPage() {
             <Button
               onClick={() => {
                 setEditingUserId(user.id);
-                setEditingUser({
-                  username: user.username,
-                  email: user.email,
-                  role: user.role,
-                });
+                setEditingUserValue("username", user.username);
+                setEditingUserValue("email", user.email);
+                setEditingUserValue("role", user.role);
+                setEditingUserValue("password", ""); // or omit if not editing password
               }}>
               Edit
             </Button>
@@ -270,15 +308,14 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Input
-              value={editingProduct.name ?? product.name}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  name: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input {...registerEditingProduct("name", { required: "Name is required" })} />
+              {editingProductErrors.name && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.name.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -293,15 +330,16 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Input
-              value={editingProduct.description ?? product.description}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  description: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input
+                {...registerEditingProduct("description", { required: "Description is required" })}
+              />
+              {editingProductErrors.description && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.description.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -316,16 +354,25 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Textarea
-              hasAutoGrow
-              value={editingProduct.details ?? product.details}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  details: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Controller
+                name="details"
+                control={editingProductForm.control}
+                rules={{ required: "Details is required" }}
+                render={({ field }) => (
+                  <Textarea
+                    {...field}
+                    hasAutoGrow
+                    onChange={(e) => field.onChange(e.target.value)}
+                  />
+                )}
+              />
+              {editingProductErrors.details && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.details.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -340,15 +387,24 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <NumberInput
-              value={editingProduct.price ?? product.price}
-              onChange={(value) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  price: parseFloat(value as string),
-                })
-              }
-            />
+            <div>
+              <Controller
+                name="price"
+                control={editingProductForm.control}
+                rules={{
+                  required: "Price is required",
+                  min: { value: 0, message: "Price must be positive" },
+                }}
+                render={({ field }) => (
+                  <NumberInput {...field} onChange={(value) => field.onChange(value)} />
+                )}
+              />
+              {editingProductErrors.price && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.price.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -363,15 +419,16 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Input
-              value={editingProduct.imageUrl ?? product.imageUrl}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  imageUrl: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input
+                {...registerEditingProduct("imageUrl", { required: "Image URL is required" })}
+              />
+              {editingProductErrors.imageUrl && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.imageUrl.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -386,20 +443,27 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Select
-              value={editingProduct.category ?? product.category}
-              onChange={(value) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  category: value as "keyboard" | "mouse" | "headset" | "controller" | "other",
-                })
-              }>
-              <Select.Option value="keyboard">keyboard</Select.Option>
-              <Select.Option value="mouse">mouse</Select.Option>
-              <Select.Option value="headset">headset</Select.Option>
-              <Select.Option value="controller">controller</Select.Option>
-              <Select.Option value="other">other</Select.Option>
-            </Select>
+            <div>
+              <Controller
+                name="category"
+                control={editingProductForm.control}
+                rules={{ required: "Category is required" }}
+                render={({ field }) => (
+                  <Select {...field} onChange={(value) => field.onChange(value)}>
+                    <Select.Option value="keyboard">keyboard</Select.Option>
+                    <Select.Option value="mouse">mouse</Select.Option>
+                    <Select.Option value="headset">headset</Select.Option>
+                    <Select.Option value="controller">controller</Select.Option>
+                    <Select.Option value="other">other</Select.Option>
+                  </Select>
+                )}
+              />
+              {editingProductErrors.category && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.category.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -415,7 +479,7 @@ export function AdminPage() {
         if (editingProductId === product.id) {
           return (
             <ButtonsContainer>
-              <Button onClick={() => handleUpdateProduct(product.id)}>Save</Button>
+              <Button onClick={handleSubmitEditingProduct(onSubmitEditingProduct)}>Save</Button>
               <Button onClick={() => setEditingProductId(null)}>Cancel</Button>
             </ButtonsContainer>
           );
@@ -426,14 +490,15 @@ export function AdminPage() {
             <Button
               onClick={() => {
                 setEditingProductId(product.id);
-                setEditingProduct({
-                  name: product.name,
-                  description: product.description,
-                  details: product.details,
-                  price: product.price,
-                  imageUrl: product.imageUrl,
-                  category: product.category,
-                });
+                setEditingProductValue("name", product.name);
+                setEditingProductValue("description", product.description);
+                setEditingProductValue("details", product.details);
+                setEditingProductValue("price", product.price);
+                setEditingProductValue("imageUrl", product.imageUrl);
+                setEditingProductValue(
+                  "category",
+                  product.category as "keyboard" | "mouse" | "headset" | "controller" | "other",
+                );
               }}>
               Edit
             </Button>
@@ -451,32 +516,45 @@ export function AdminPage() {
       <Section>
         <h2>Users</h2>
 
-        <Form>
+        <Form onSubmit={handleSubmitUser(onSubmitUser)}>
           <Input
             placeholder="Username"
-            value={newUser.username}
-            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+            {...registerUser("username", { required: "Username is required" })}
           />
+          {userErrors.username && <p style={{ color: "red" }}>{userErrors.username.message}</p>}
+
           <Input
             placeholder="Email"
             type="email"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            {...registerUser("email", {
+              required: "Email is required",
+              pattern: { value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/, message: "Invalid email format" },
+            })}
           />
+          {userErrors.email && <p style={{ color: "red" }}>{userErrors.email.message}</p>}
+
           <Input
             placeholder="Password"
             type="password"
-            value={newUser.password}
-            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+            {...registerUser("password", {
+              required: "Password is required",
+              minLength: { value: 6, message: "Password must be at least 6 characters" },
+            })}
           />
-          <Select
-            label={"Role"}
-            value={newUser.role}
-            onChange={(value) => setNewUser({ ...newUser, role: value as "USER" | "ADMIN" })}>
-            <Select.Option value="USER">USER</Select.Option>
-            <Select.Option value="ADMIN">ADMIN</Select.Option>
-          </Select>
-          <Button onClick={handleCreateUser}>Create User</Button>
+          {userErrors.password && <p style={{ color: "red" }}>{userErrors.password.message}</p>}
+
+          <Controller
+            name="role"
+            control={userControl}
+            rules={{ required: "Role is required" }}
+            render={({ field }) => (
+              <Select label="Role" {...field}>
+                <Select.Option value="USER">USER</Select.Option>
+                <Select.Option value="ADMIN">ADMIN</Select.Option>
+              </Select>
+            )}
+          />
+          <Button onClick={handleSubmitUser(onSubmitUser)}>Create User</Button>
         </Form>
 
         {loadingUsers && <p>Loading users...</p>}
@@ -487,49 +565,61 @@ export function AdminPage() {
 
       <Section>
         <h2>Products</h2>
-        <Form>
+        <Form onSubmit={handleSubmitProduct(onSubmitProduct)}>
           <Input
             placeholder="Name"
-            value={newProduct.name}
-            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            {...registerProduct("name", { required: "Name is required" })}
           />
+          {productErrors.name && <p style={{ color: "red" }}>{productErrors.name.message}</p>}
+
           <Input
             placeholder="Description"
-            value={newProduct.description}
-            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+            {...registerProduct("description", { required: "Description is required" })}
           />
+          {productErrors.description && (
+            <p style={{ color: "red" }}>{productErrors.description.message}</p>
+          )}
+
           <Input
             placeholder="Details"
-            value={newProduct.details}
-            onChange={(e) => setNewProduct({ ...newProduct, details: e.target.value })}
+            {...registerProduct("details", { required: "Details are required" })}
           />
-          <NumberInput
-            label="Price"
-            value={newProduct.price}
-            onChange={(value) => setNewProduct({ ...newProduct, price: value as number })}
+          {productErrors.details && <p style={{ color: "red" }}>{productErrors.details.message}</p>}
+
+          <Controller
+            name="price"
+            control={productControl}
+            rules={{
+              required: "Price is required",
+              min: { value: 0, message: "Price must be positive" },
+            }}
+            render={({ field }) => <NumberInput label="Price" {...field} />}
           />
+          {productErrors.price && <p style={{ color: "red" }}>{productErrors.price.message}</p>}
 
           <Input
             placeholder="Image URL"
-            value={newProduct.imageUrl}
-            onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
+            {...registerProduct("imageUrl", { required: "Image URL is required" })}
           />
-          <Select
-            label={"Category"}
-            value={newProduct.category}
-            onChange={(value) =>
-              setNewProduct({
-                ...newProduct,
-                category: value as "keyboard" | "mouse" | "headset" | "controller" | "other",
-              })
-            }>
-            <Select.Option value="keyboard">keyboard</Select.Option>
-            <Select.Option value="mouse">mouse</Select.Option>
-            <Select.Option value="headset">headset</Select.Option>
-            <Select.Option value="controller">controller</Select.Option>
-            <Select.Option value="other">other</Select.Option>
-          </Select>
-          <Button onClick={handleCreateProduct}>Create Product</Button>
+          {productErrors.imageUrl && (
+            <p style={{ color: "red" }}>{productErrors.imageUrl.message}</p>
+          )}
+
+          <Controller
+            name="category"
+            control={productControl}
+            rules={{ required: "Category is required" }}
+            render={({ field }) => (
+              <Select label="Category" {...field}>
+                <Select.Option value="keyboard">keyboard</Select.Option>
+                <Select.Option value="mouse">mouse</Select.Option>
+                <Select.Option value="headset">headset</Select.Option>
+                <Select.Option value="controller">controller</Select.Option>
+                <Select.Option value="other">other</Select.Option>
+              </Select>
+            )}
+          />
+          <Button onClick={handleSubmitProduct(onSubmitProduct)}>Create Product</Button>
         </Form>
 
         {loadingProducts && <p>Loading products...</p>}
