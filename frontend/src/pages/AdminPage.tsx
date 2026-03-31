@@ -72,6 +72,8 @@ const ButtonsContainer = styled.div`
 `;
 
 export function AdminPage() {
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const {
     data: usersData,
     loading: loadingUsers,
@@ -91,8 +93,13 @@ export function AdminPage() {
     control: userControl,
   } = userForm;
 
-  const [editingUserId, setEditingUserId] = useState<number | null>(null);
-  const [editingUser, setEditingUser] = useState<Partial<UpdateUserVariables>>({});
+  const editingUserForm = useForm<UserFormValues>();
+  const {
+    register: registerEditingUser,
+    handleSubmit: handleSubmitEditingUser,
+    setValue: setEditingUserValue,
+    formState: { errors: editingUserErrors },
+  } = editingUserForm;
 
   const {
     data: productsData,
@@ -119,8 +126,13 @@ export function AdminPage() {
     control: productControl,
   } = productForm;
 
-  const [editingProductId, setEditingProductId] = useState<number | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Partial<UpdateProductVariables>>({});
+  const editingProductForm = useForm<ProductFormValues>();
+  const {
+    register: registerEditingProduct,
+    handleSubmit: handleSubmitEditingProduct,
+    setValue: setEditingProductValue,
+    formState: { errors: editingProductErrors },
+  } = editingProductForm;
 
   const onSubmitUser = async (formData: UserFormValues) => {
     await createUser({ variables: formData });
@@ -128,10 +140,12 @@ export function AdminPage() {
     refetchUsers();
   };
 
-  const handleUpdateUser = async (id: number) => {
-    await updateUser({ variables: { id, ...editingUser } });
-    setEditingUserId(null);
-    refetchUsers();
+  const onSubmitEditingUser = async (formData: UserFormValues) => {
+    if (editingUserId) {
+      await updateUser({ variables: { id: editingUserId, ...formData } });
+      setEditingUserId(null);
+      refetchUsers();
+    }
   };
 
   const handleDeleteUser = async (id: number) => {
@@ -145,10 +159,12 @@ export function AdminPage() {
     refetchProducts();
   };
 
-  const handleUpdateProduct = async (id: number) => {
-    await updateProduct({ variables: { id, ...editingProduct } });
-    setEditingProductId(null);
-    refetchProducts();
+  const onSubmitEditingProduct = async (formData: ProductFormValues) => {
+    if (editingProductId) {
+      await updateProduct({ variables: { id: editingProductId, ...formData } });
+      setEditingProductId(null);
+      refetchProducts();
+    }
   };
 
   const handleDeleteProduct = async (id: number) => {
@@ -170,15 +186,14 @@ export function AdminPage() {
 
         if (editingUserId === user.id) {
           return (
-            <Input
-              value={editingUser.username ?? user.username}
-              onChange={(e) =>
-                setEditingUser({
-                  ...editingUser,
-                  username: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input {...registerEditingUser("username", { required: "Username is required" })} />
+              {editingUserErrors.username && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingUserErrors.username.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -193,15 +208,20 @@ export function AdminPage() {
 
         if (editingUserId === user.id) {
           return (
-            <Input
-              value={editingUser.email ?? user.email}
-              onChange={(e) =>
-                setEditingUser({
-                  ...editingUser,
-                  email: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input
+                type="email"
+                {...registerEditingUser("email", {
+                  required: "Email is required",
+                  pattern: { value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/, message: "Invalid email format" },
+                })}
+              />
+              {editingUserErrors.email && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingUserErrors.email.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -216,17 +236,24 @@ export function AdminPage() {
 
         if (editingUserId === user.id) {
           return (
-            <Select
-              value={editingUser.role ?? user.role}
-              onChange={(value) =>
-                setEditingUser({
-                  ...editingUser,
-                  role: value as "USER" | "ADMIN",
-                })
-              }>
-              <Select.Option value="USER">USER</Select.Option>
-              <Select.Option value="ADMIN">ADMIN</Select.Option>
-            </Select>
+            <div>
+              <Controller
+                name="role"
+                control={editingUserForm.control}
+                rules={{ required: "Role is required" }}
+                render={({ field }) => (
+                  <Select {...field}>
+                    <Select.Option value="USER">USER</Select.Option>
+                    <Select.Option value="ADMIN">ADMIN</Select.Option>
+                  </Select>
+                )}
+              />
+              {editingUserErrors.role && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingUserErrors.role.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -242,7 +269,7 @@ export function AdminPage() {
         if (editingUserId === user.id) {
           return (
             <ButtonsContainer>
-              <Button onClick={() => handleUpdateUser(user.id)}>Save</Button>
+              <Button onClick={handleSubmitEditingUser(onSubmitEditingUser)}>Save</Button>
               <Button onClick={() => setEditingUserId(null)}>Cancel</Button>
             </ButtonsContainer>
           );
@@ -253,11 +280,10 @@ export function AdminPage() {
             <Button
               onClick={() => {
                 setEditingUserId(user.id);
-                setEditingUser({
-                  username: user.username,
-                  email: user.email,
-                  role: user.role,
-                });
+                setEditingUserValue("username", user.username);
+                setEditingUserValue("email", user.email);
+                setEditingUserValue("role", user.role);
+                setEditingUserValue("password", ""); // or omit if not editing password
               }}>
               Edit
             </Button>
@@ -282,15 +308,14 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Input
-              value={editingProduct.name ?? product.name}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  name: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input {...registerEditingProduct("name", { required: "Name is required" })} />
+              {editingProductErrors.name && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.name.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -305,15 +330,16 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Input
-              value={editingProduct.description ?? product.description}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  description: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input
+                {...registerEditingProduct("description", { required: "Description is required" })}
+              />
+              {editingProductErrors.description && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.description.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -328,16 +354,25 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Textarea
-              hasAutoGrow
-              value={editingProduct.details ?? product.details}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  details: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Controller
+                name="details"
+                control={editingProductForm.control}
+                rules={{ required: "Details is required" }}
+                render={({ field }) => (
+                  <Textarea
+                    {...field}
+                    hasAutoGrow
+                    onChange={(e) => field.onChange(e.target.value)}
+                  />
+                )}
+              />
+              {editingProductErrors.details && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.details.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -352,15 +387,24 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <NumberInput
-              value={editingProduct.price ?? product.price}
-              onChange={(value) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  price: parseFloat(value as string),
-                })
-              }
-            />
+            <div>
+              <Controller
+                name="price"
+                control={editingProductForm.control}
+                rules={{
+                  required: "Price is required",
+                  min: { value: 0, message: "Price must be positive" },
+                }}
+                render={({ field }) => (
+                  <NumberInput {...field} onChange={(value) => field.onChange(value)} />
+                )}
+              />
+              {editingProductErrors.price && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.price.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -375,15 +419,16 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Input
-              value={editingProduct.imageUrl ?? product.imageUrl}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  imageUrl: e.target.value,
-                })
-              }
-            />
+            <div>
+              <Input
+                {...registerEditingProduct("imageUrl", { required: "Image URL is required" })}
+              />
+              {editingProductErrors.imageUrl && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.imageUrl.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -398,20 +443,27 @@ export function AdminPage() {
 
         if (editingProductId === product.id) {
           return (
-            <Select
-              value={editingProduct.category ?? product.category}
-              onChange={(value) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  category: value as "keyboard" | "mouse" | "headset" | "controller" | "other",
-                })
-              }>
-              <Select.Option value="keyboard">keyboard</Select.Option>
-              <Select.Option value="mouse">mouse</Select.Option>
-              <Select.Option value="headset">headset</Select.Option>
-              <Select.Option value="controller">controller</Select.Option>
-              <Select.Option value="other">other</Select.Option>
-            </Select>
+            <div>
+              <Controller
+                name="category"
+                control={editingProductForm.control}
+                rules={{ required: "Category is required" }}
+                render={({ field }) => (
+                  <Select {...field} onChange={(value) => field.onChange(value)}>
+                    <Select.Option value="keyboard">keyboard</Select.Option>
+                    <Select.Option value="mouse">mouse</Select.Option>
+                    <Select.Option value="headset">headset</Select.Option>
+                    <Select.Option value="controller">controller</Select.Option>
+                    <Select.Option value="other">other</Select.Option>
+                  </Select>
+                )}
+              />
+              {editingProductErrors.category && (
+                <p style={{ color: "red", margin: "0.25rem 0 0" }}>
+                  {editingProductErrors.category.message}
+                </p>
+              )}
+            </div>
           );
         }
 
@@ -427,7 +479,7 @@ export function AdminPage() {
         if (editingProductId === product.id) {
           return (
             <ButtonsContainer>
-              <Button onClick={() => handleUpdateProduct(product.id)}>Save</Button>
+              <Button onClick={handleSubmitEditingProduct(onSubmitEditingProduct)}>Save</Button>
               <Button onClick={() => setEditingProductId(null)}>Cancel</Button>
             </ButtonsContainer>
           );
@@ -438,14 +490,15 @@ export function AdminPage() {
             <Button
               onClick={() => {
                 setEditingProductId(product.id);
-                setEditingProduct({
-                  name: product.name,
-                  description: product.description,
-                  details: product.details,
-                  price: product.price,
-                  imageUrl: product.imageUrl,
-                  category: product.category,
-                });
+                setEditingProductValue("name", product.name);
+                setEditingProductValue("description", product.description);
+                setEditingProductValue("details", product.details);
+                setEditingProductValue("price", product.price);
+                setEditingProductValue("imageUrl", product.imageUrl);
+                setEditingProductValue(
+                  "category",
+                  product.category as "keyboard" | "mouse" | "headset" | "controller" | "other",
+                );
               }}>
               Edit
             </Button>
