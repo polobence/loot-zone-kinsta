@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import { Button } from "@kinsta/stratus";
@@ -6,6 +6,13 @@ import { useNotification } from "../context/notification/useNotification";
 import { useMutation } from "@apollo/client/react";
 import { REGISTER } from "../graphql/mutations";
 import { type RegisterVariables, type RegisterResponse } from "../types/Register";
+
+type RegisterFormValues = {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
 
 const Form = styled.form`
   display: flex;
@@ -31,29 +38,27 @@ const Error = styled.p`
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const [register, { error }] = useMutation<RegisterResponse, RegisterVariables>(REGISTER);
+  const [registerMutation, { error }] = useMutation<RegisterResponse, RegisterVariables>(REGISTER);
   const { showNotification } = useNotification();
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({ mode: "onTouched" });
 
-    if (!username || !email || !password || !confirmPassword) {
-      setFormError("All fields are required");
+  const onSubmit = async (formData: RegisterFormValues) => {
+    if (formData.password !== formData.confirmPassword) {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setFormError("Passwords do not match");
-      return;
-    }
-
-    const { data } = await register({
-      variables: { username, email, password },
+    const { data } = await registerMutation({
+      variables: {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      },
     });
 
     if (data) {
@@ -69,35 +74,43 @@ export function RegisterPage() {
 
       <Input
         placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        {...register("username", { required: "Username is required" })}
       />
+      {errors.username && <Error>{errors.username.message}</Error>}
 
       <Input
         type="email"
         placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        {...register("email", {
+          required: "Email is required",
+          pattern: { value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/, message: "Invalid email format" },
+        })}
       />
+      {errors.email && <Error>{errors.email.message}</Error>}
 
       <Input
         type="password"
         placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        {...register("password", {
+          required: "Password is required",
+          minLength: { value: 6, message: "Password must be at least 6 characters" },
+        })}
       />
+      {errors.password && <Error>{errors.password.message}</Error>}
 
       <Input
         type="password"
         placeholder="Confirm Password"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
+        {...register("confirmPassword", {
+          required: "Confirm Password is required",
+          validate: (value) => value === getValues("password") || "Passwords do not match",
+        })}
       />
+      {errors.confirmPassword && <Error>{errors.confirmPassword.message}</Error>}
 
       {error && <Error>{error.message}</Error>}
-      {formError && <Error>{formError}</Error>}
 
-      <Button onClick={handleSubmit}>Register</Button>
+      <Button onClick={handleSubmit(onSubmit)}>Register</Button>
     </Form>
   );
 }
