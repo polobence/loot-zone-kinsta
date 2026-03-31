@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client/react";
+import { useForm, Controller } from "react-hook-form";
 import { GET_USERS, GET_ALL_PRODUCTS } from "../graphql/queries";
 import {
   CREATE_USER,
@@ -31,6 +32,22 @@ import {
   type TableColumnDef,
 } from "@kinsta/stratus";
 import styled from "@emotion/styled";
+
+type UserFormValues = {
+  username: string;
+  email: string;
+  password: string;
+  role: "USER" | "ADMIN";
+};
+
+type ProductFormValues = {
+  name: string;
+  description: string;
+  details: string;
+  price: number;
+  imageUrl: string;
+  category: "keyboard" | "mouse" | "headset" | "controller" | "other";
+};
 
 const Container = styled.div`
   max-width: 1200px;
@@ -65,12 +82,15 @@ export function AdminPage() {
   const [updateUser] = useMutation<{ updateUser: User }, UpdateUserVariables>(UPDATE_USER);
   const [deleteUser] = useMutation<{ deleteUser: boolean }, DeleteUserVariables>(DELETE_USER);
 
-  const [newUser, setNewUser] = useState<Partial<CreateUserVariables>>({
-    username: "",
-    email: "",
-    password: "",
-    role: "USER",
-  });
+  const userForm = useForm<UserFormValues>({ defaultValues: { role: "USER" } });
+  const {
+    register: registerUser,
+    handleSubmit: handleSubmitUser,
+    formState: { errors: userErrors },
+    reset: resetUserForm,
+    control: userControl,
+  } = userForm;
+
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [editingUser, setEditingUser] = useState<Partial<UpdateUserVariables>>({});
 
@@ -90,21 +110,21 @@ export function AdminPage() {
     DELETE_PRODUCT,
   );
 
-  const [newProduct, setNewProduct] = useState<Partial<CreateProductVariables>>({
-    name: "",
-    description: "",
-    details: "",
-    price: 0,
-    imageUrl: "",
-    category: "other",
-  });
+  const productForm = useForm<ProductFormValues>({ defaultValues: { category: "other" } });
+  const {
+    register: registerProduct,
+    handleSubmit: handleSubmitProduct,
+    formState: { errors: productErrors },
+    reset: resetProductForm,
+    control: productControl,
+  } = productForm;
+
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editingProduct, setEditingProduct] = useState<Partial<UpdateProductVariables>>({});
 
-  const handleCreateUser = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await createUser({ variables: newUser as CreateUserVariables });
-    setNewUser({ username: "", email: "", password: "", role: "USER" });
+  const onSubmitUser = async (formData: UserFormValues) => {
+    await createUser({ variables: formData });
+    resetUserForm();
     refetchUsers();
   };
 
@@ -119,17 +139,9 @@ export function AdminPage() {
     refetchUsers();
   };
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await createProduct({ variables: newProduct as CreateProductVariables });
-    setNewProduct({
-      name: "",
-      description: "",
-      details: "",
-      price: 0,
-      imageUrl: "",
-      category: "other",
-    });
+  const onSubmitProduct = async (formData: ProductFormValues) => {
+    await createProduct({ variables: formData });
+    resetProductForm();
     refetchProducts();
   };
 
@@ -451,32 +463,45 @@ export function AdminPage() {
       <Section>
         <h2>Users</h2>
 
-        <Form>
+        <Form onSubmit={handleSubmitUser(onSubmitUser)}>
           <Input
             placeholder="Username"
-            value={newUser.username}
-            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+            {...registerUser("username", { required: "Username is required" })}
           />
+          {userErrors.username && <p style={{ color: "red" }}>{userErrors.username.message}</p>}
+
           <Input
             placeholder="Email"
             type="email"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            {...registerUser("email", {
+              required: "Email is required",
+              pattern: { value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/, message: "Invalid email format" },
+            })}
           />
+          {userErrors.email && <p style={{ color: "red" }}>{userErrors.email.message}</p>}
+
           <Input
             placeholder="Password"
             type="password"
-            value={newUser.password}
-            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+            {...registerUser("password", {
+              required: "Password is required",
+              minLength: { value: 6, message: "Password must be at least 6 characters" },
+            })}
           />
-          <Select
-            label={"Role"}
-            value={newUser.role}
-            onChange={(value) => setNewUser({ ...newUser, role: value as "USER" | "ADMIN" })}>
-            <Select.Option value="USER">USER</Select.Option>
-            <Select.Option value="ADMIN">ADMIN</Select.Option>
-          </Select>
-          <Button onClick={handleCreateUser}>Create User</Button>
+          {userErrors.password && <p style={{ color: "red" }}>{userErrors.password.message}</p>}
+
+          <Controller
+            name="role"
+            control={userControl}
+            rules={{ required: "Role is required" }}
+            render={({ field }) => (
+              <Select label="Role" {...field}>
+                <Select.Option value="USER">USER</Select.Option>
+                <Select.Option value="ADMIN">ADMIN</Select.Option>
+              </Select>
+            )}
+          />
+          <Button onClick={handleSubmitUser(onSubmitUser)}>Create User</Button>
         </Form>
 
         {loadingUsers && <p>Loading users...</p>}
@@ -487,49 +512,61 @@ export function AdminPage() {
 
       <Section>
         <h2>Products</h2>
-        <Form>
+        <Form onSubmit={handleSubmitProduct(onSubmitProduct)}>
           <Input
             placeholder="Name"
-            value={newProduct.name}
-            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            {...registerProduct("name", { required: "Name is required" })}
           />
+          {productErrors.name && <p style={{ color: "red" }}>{productErrors.name.message}</p>}
+
           <Input
             placeholder="Description"
-            value={newProduct.description}
-            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+            {...registerProduct("description", { required: "Description is required" })}
           />
+          {productErrors.description && (
+            <p style={{ color: "red" }}>{productErrors.description.message}</p>
+          )}
+
           <Input
             placeholder="Details"
-            value={newProduct.details}
-            onChange={(e) => setNewProduct({ ...newProduct, details: e.target.value })}
+            {...registerProduct("details", { required: "Details are required" })}
           />
-          <NumberInput
-            label="Price"
-            value={newProduct.price}
-            onChange={(value) => setNewProduct({ ...newProduct, price: value as number })}
+          {productErrors.details && <p style={{ color: "red" }}>{productErrors.details.message}</p>}
+
+          <Controller
+            name="price"
+            control={productControl}
+            rules={{
+              required: "Price is required",
+              min: { value: 0, message: "Price must be positive" },
+            }}
+            render={({ field }) => <NumberInput label="Price" {...field} />}
           />
+          {productErrors.price && <p style={{ color: "red" }}>{productErrors.price.message}</p>}
 
           <Input
             placeholder="Image URL"
-            value={newProduct.imageUrl}
-            onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
+            {...registerProduct("imageUrl", { required: "Image URL is required" })}
           />
-          <Select
-            label={"Category"}
-            value={newProduct.category}
-            onChange={(value) =>
-              setNewProduct({
-                ...newProduct,
-                category: value as "keyboard" | "mouse" | "headset" | "controller" | "other",
-              })
-            }>
-            <Select.Option value="keyboard">keyboard</Select.Option>
-            <Select.Option value="mouse">mouse</Select.Option>
-            <Select.Option value="headset">headset</Select.Option>
-            <Select.Option value="controller">controller</Select.Option>
-            <Select.Option value="other">other</Select.Option>
-          </Select>
-          <Button onClick={handleCreateProduct}>Create Product</Button>
+          {productErrors.imageUrl && (
+            <p style={{ color: "red" }}>{productErrors.imageUrl.message}</p>
+          )}
+
+          <Controller
+            name="category"
+            control={productControl}
+            rules={{ required: "Category is required" }}
+            render={({ field }) => (
+              <Select label="Category" {...field}>
+                <Select.Option value="keyboard">keyboard</Select.Option>
+                <Select.Option value="mouse">mouse</Select.Option>
+                <Select.Option value="headset">headset</Select.Option>
+                <Select.Option value="controller">controller</Select.Option>
+                <Select.Option value="other">other</Select.Option>
+              </Select>
+            )}
+          />
+          <Button onClick={handleSubmitProduct(onSubmitProduct)}>Create Product</Button>
         </Form>
 
         {loadingProducts && <p>Loading products...</p>}
